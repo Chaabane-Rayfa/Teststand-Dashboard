@@ -161,10 +161,17 @@ const fill = (id, v)=> { $(id).style.width = v + "%"; }
 
 /* ---------- LEDs update ---------- */
 function refreshLEDs(){
-  setLed("led_robot", robotAt?"on":"");
-  setLed("led_sensor", sensor?"on":"");
-  setLed("led_ready", (robotAt&&sensor)?"on":"");
+  setLed("led_robot", robotAt ? "on" : "");
+  setLed("led_sensor", sensor ? "on" : "");
+  const ready = robotAt && sensor;
+  setLed("led_ready", ready ? "on" : "");
+
+  // NEW: شغّل السيكونس تلقائيًا وقت Ready
+  if (ready && !busy ) {
+    processReadyCycle();
+  }
 }
+
 
 /* ---------- Buttons (manual) ---------- */
 $("btnRobot").onclick = ()=>{
@@ -304,6 +311,48 @@ function animateBar(id, duration){
     })(start);
   });
 }
+<script>
+  ...
+  function animateBar(id, duration){
+    return new Promise((resolve)=>{
+      const start = performance.now();
+      (function step(now){
+        const p = Math.min(1, (now-start)/duration);
+        $(id).style.width = (p*100)+"%";
+        if(stopFlag || p>=1) return resolve();
+        requestAnimationFrame(step);
+      })(start);
+    });
+  }
+
+  // NEW: يشغّل Flashing + Testing تلقائيًا وقت Ready=1 (بدون حركة روبوت)
+  async function processReadyCycle(){
+    if (busy) return;
+    busy = true;
+
+    // reset visuals
+    fill("bar_flash",0); fill("bar_test",0);
+    setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
+
+    // Flash
+    setLed("led_flash","busy"); log("Flashing started","log-flash");
+    await animateBar("bar_flash", 1200);
+    setLed("led_flash","on");   log("Flashing done","log-flash");
+
+    // Test
+    setLed("led_test","busy");  log("Testing started","log-test");
+    await animateBar("bar_test", 1500);
+    setLed("led_test","on");    log("Testing done","log-test");
+
+    // ACK pulse
+    setLed("led_ack","on");     log("ACK ON → Robot","log-ack");
+    await sleep(800);
+    setLed("led_ack","");       log("ACK OFF","log-ack");
+
+    busy = false;
+  }
+
+
 
 /* ---------- Init ---------- */
 refreshLEDs();
