@@ -2,78 +2,122 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Doosan Teststand — Simulation Dashboard</title>
+<title>🦾 Doosan Teststand — Simulation Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <style>
-  body{font-family:Segoe UI,Roboto,Arial,sans-serif;margin:30px;background:#f4f6f8;color:#222}
-  h1{font-size:22px;margin-bottom:20px}
-  .row{display:flex;align-items:center;margin:12px 0}
-  .led{width:20px;height:20px;border-radius:50%;background:#bbb;margin-right:12px;
-       box-shadow:0 0 4px rgba(0,0,0,.2) inset;transition:background .3s}
-  .led.on{background:#2ecc71;box-shadow:0 0 8px #2ecc71}
-  .led.busy{background:#f1c40f;box-shadow:0 0 8px #f1c40f}
-  .led.fail{background:#e74c3c;box-shadow:0 0 8px #e74c3c}
-  .label{min-width:200px}
-  button{padding:8px 14px;margin:5px;border:none;border-radius:6px;cursor:pointer;
-         background:#3498db;color:white;font-weight:600}
-  button.active{background:#2ecc71}
-  #log{margin-top:20px;background:white;border:1px solid #ddd;padding:10px;border-radius:6px;
-       max-height:180px;overflow:auto;font-size:13px;white-space:pre-line}
+  body{font-family:Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#f4f6f8;color:#333}
+  header{background:#2c3e50;color:#fff;padding:16px 24px;font-size:20px;font-weight:600}
+  main{display:flex;flex-wrap:wrap;gap:20px;padding:20px;justify-content:center}
+  .card{background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1);
+        padding:20px;flex:1 1 300px;max-width:360px;transition:transform .2s}
+  .card:hover{transform:translateY(-3px)}
+  h2{margin-top:0;font-size:18px;color:#2c3e50}
+
+  .row{display:flex;align-items:center;margin:10px 0}
+  .led{width:26px;height:26px;border-radius:50%;margin-right:12px;
+       background:#bdc3c7;box-shadow:inset 0 0 6px rgba(0,0,0,.3);transition:background .4s,box-shadow .4s}
+  .led.on{background:#2ecc71;box-shadow:0 0 10px #2ecc71}
+  .led.busy{background:#f1c40f;box-shadow:0 0 10px #f1c40f}
+  .led.fail{background:#e74c3c;box-shadow:0 0 10px #e74c3c}
+  .label{font-size:15px}
+
+  button{padding:10px 18px;margin:6px;border:none;border-radius:8px;cursor:pointer;
+         font-weight:600;font-size:14px;background:#3498db;color:#fff;transition:background .3s}
+  button:hover{background:#2980b9}
+  button.active{background:#27ae60}
+
+  .progress{height:12px;background:#ecf0f1;border-radius:6px;overflow:hidden;margin-top:8px}
+  .progress-bar{height:100%;width:0;background:#3498db;transition:width .3s linear}
+
+  #log{font-size:13px;max-height:260px;overflow:auto;background:#1e272e;color:#ecf0f1;
+       border-radius:8px;padding:12px;line-height:1.4}
+  .log-flash{color:#f1c40f}
+  .log-test{color:#3498db}
+  .log-ack{color:#2ecc71}
+  .log-other{color:#bdc3c7}
 </style>
 </head>
 <body>
-<h1>🦾 Doosan Teststand — Simulation Dashboard</h1>
+<header>🦾 Doosan Teststand — Simulation Dashboard</header>
+<main>
+  <div class="card">
+    <h2>Controls</h2>
+    <button id="btnRobot">RobotAt = 0</button>
+    <button id="btnSensor">Sensor = 0</button>
+    <p id="cycleCount">Cycles: 0</p>
+  </div>
 
-<div class="row">
-  <button id="btnRobot">RobotAt = 0</button>
-  <button id="btnSensor">Sensor = 0</button>
-</div>
+  <div class="card">
+    <h2>Status LEDs</h2>
+    <div class="row"><div id="led_robot" class="led"></div><div class="label">Robot At_Target</div></div>
+    <div class="row"><div id="led_sensor" class="led"></div><div class="label">Panel Sensor</div></div>
+    <div class="row"><div id="led_ready" class="led"></div><div class="label">Ready (Both=1)</div></div>
+    <div class="row"><div id="led_flash" class="led"></div><div class="label">Flashing</div></div>
+    <div class="progress"><div id="bar_flash" class="progress-bar"></div></div>
+    <div class="row"><div id="led_test" class="led"></div><div class="label">Testing</div></div>
+    <div class="progress"><div id="bar_test" class="progress-bar"></div></div>
+    <div class="row"><div id="led_ack" class="led"></div><div class="label">ACK to Robot</div></div>
+  </div>
 
-<div class="row"><div id="led_robot" class="led"></div><div class="label">Robot At_Target</div></div>
-<div class="row"><div id="led_sensor" class="led"></div><div class="label">Panel Sensor</div></div>
-<div class="row"><div id="led_ready" class="led"></div><div class="label">Ready (Both=1)</div></div>
-<div class="row"><div id="led_flash" class="led"></div><div class="label">Flashing</div></div>
-<div class="row"><div id="led_test" class="led"></div><div class="label">Testing</div></div>
-<div class="row"><div id="led_ack" class="led"></div><div class="label">ACK to Robot</div></div>
-
-<div id="log"></div>
+  <div class="card" style="flex:1 1 100%;max-width:100%">
+    <h2>Event Log</h2>
+    <div id="log"></div>
+  </div>
+</main>
 
 <script>
-let robot=0, sensor=0, busy=false;
+let robot=0,sensor=0,busy=false,cycles=0;
 
-function setLed(id,state){
-  const el=document.getElementById(id);
-  el.className="led "+state;
-}
-function log(msg){
-  const L=document.getElementById("log");
+function setLed(id,state){document.getElementById(id).className="led "+(state||"")}
+function log(msg,cls="log-other"){
   const t=new Date().toLocaleTimeString();
-  L.textContent=`[${t}] ${msg}\n`+L.textContent;
+  const line=`<div class="${cls}">[${t}] ${msg}</div>`;
+  const L=document.getElementById("log");
+  L.innerHTML=line+L.innerHTML;
 }
 function update(){
-  setLed("led_robot", robot? "on":"");
-  setLed("led_sensor", sensor? "on":"");
+  setLed("led_robot",robot?"on":"");
+  setLed("led_sensor",sensor?"on":"");
   const ready=robot&&sensor;
-  setLed("led_ready", ready? "on":"");
-  if(ready && !busy) simulateCycle();
+  setLed("led_ready",ready?"on":"");
+  if(ready&&!busy) simulateCycle();
 }
+
 async function simulateCycle(){
-  busy=true;
+  busy=true; cycles++;
+  document.getElementById("cycleCount").textContent="Cycles: "+cycles;
   log("Cycle started (RobotAt=1 & Sensor=1)");
-  setLed("led_flash","busy"); log("Flashing started");
-  await sleep(1000);
-  setLed("led_flash","on"); log("Flashing done");
+  // Flash
+  setLed("led_flash","busy"); fillBar("bar_flash",0);
+  log("Flashing started","log-flash");
+  await animateBar("bar_flash",100,1200);
+  setLed("led_flash","on"); log("Flashing done","log-flash");
 
-  setLed("led_test","busy"); log("Testing started");
-  await sleep(1000);
-  setLed("led_test","on"); log("Testing done");
+  // Test
+  setLed("led_test","busy"); fillBar("bar_test",0);
+  log("Testing started","log-test");
+  await animateBar("bar_test",100,1500);
+  setLed("led_test","on"); log("Testing done","log-test");
 
-  setLed("led_ack","on"); log("ACK ON → Robot");
+  // Ack
+  setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
   await sleep(1000);
-  setLed("led_ack",""); log("ACK OFF");
+  setLed("led_ack",""); log("ACK OFF","log-ack");
   busy=false;
 }
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function fillBar(id,w){document.getElementById(id).style.width=w+"%";}
+async function animateBar(id,to,dur){
+  const bar=document.getElementById(id);
+  const start=Date.now(),from=0;
+  return new Promise(r=>{
+    function step(){
+      const p=Math.min(1,(Date.now()-start)/dur);
+      bar.style.width=(from+(to-from)*p)+"%";
+      if(p<1) requestAnimationFrame(step); else r();
+    } step();
+  });
+}
 
 document.getElementById("btnRobot").onclick=()=>{
   robot=1-robot;
@@ -81,15 +125,14 @@ document.getElementById("btnRobot").onclick=()=>{
   b.classList.toggle("active",robot);
   b.textContent=`RobotAt = ${robot}`;
   update();
-}
+};
 document.getElementById("btnSensor").onclick=()=>{
   sensor=1-sensor;
   const b=document.getElementById("btnSensor");
   b.classList.toggle("active",sensor);
   b.textContent=`Sensor = ${sensor}`;
   update();
-}
-update();
+};
 </script>
 </body>
 </html>
