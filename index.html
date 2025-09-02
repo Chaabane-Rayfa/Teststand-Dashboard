@@ -250,7 +250,7 @@ function getCurrentAngles(){
   if(m2) a2 = parseFloat(m2[1])*Math.PI/180;
   return {th1:a1, th2:a2};
 }
-function moveToolTo(pt, steps=60, ms=30){  // ms=30 باش تبان الحركة
+function moveToolTo(pt, steps=60, ms=100){  // ms=30 باش تبان الحركة
   return new Promise(async (res)=>{
     const {th1:cur1, th2:cur2} = getCurrentAngles();
     const {th1:t1,th2:t2} = ik(pt.x, pt.y);
