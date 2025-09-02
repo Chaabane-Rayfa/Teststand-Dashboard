@@ -36,8 +36,31 @@
   .led.busy{background:var(--yellow);box-shadow:0 0 10px var(--yellow)}
   .led.fail{background:var(--red);box-shadow:0 0 10px var(--red)}
   .label{font-size:15px}
-  .progress{height:10px;background:#f0f3f5;border-radius:6px;overflow:hidden;margin-top:6px}
-  .bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue2));transition:width .25s linear}
+ .progress {
+  position:relative;
+  height:14px;
+  background:#f0f3f5;
+  border-radius:6px;
+  overflow:hidden;
+  margin-top:6px
+}
+.bar {
+  height:100%;
+  width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(90deg,var(--blue),var(--blue2));
+  transition:width .25s linear
+}
+.bar span {
+  position:absolute;
+  font-size:11px;
+  color:white;
+  width:100%;
+  text-align:center;
+}
+
 
   /* Log */
   #log{font-size:13px;max-height:260px;overflow:auto;background:#1e272e;color:#ecf0f1;border-radius:10px;padding:12px;line-height:1.4}
@@ -131,10 +154,18 @@
     <div class="row"><div id="led_ready" class="led"></div><div class="label">Ready (Both=1)</div></div>
 
     <div class="row"><div id="led_flash" class="led"></div><div class="label">Flashing</div></div>
-    <div class="progress"><div id="bar_flash" class="bar"></div></div>
+  <div class="progress">
+  <div id="bar_flash" class="bar">
+    <span id="txt_flash"></span>
+  </div>
+</div>
 
     <div class="row"><div id="led_test" class="led"></div><div class="label">Testing</div></div>
-    <div class="progress"><div id="bar_test" class="bar"></div></div>
+  <div class="progress">
+  <div id="bar_test" class="bar">
+    <span id="txt_test"></span>
+  </div>
+</div>
 
     <div class="row"><div id="led_ack" class="led"></div><div class="label">ACK to Robot</div></div>
   </div>
@@ -160,15 +191,19 @@ const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
 const fill = (id, v)=> { $(id).style.width = v + "%"; }
 
 /* ---------- LEDs update ---------- */
+let prevReady = false; // متغيّر عالمي جديد
+
 function refreshLEDs(){
   setLed("led_robot", robotAt ? "on" : "");
   setLed("led_sensor", sensor ? "on" : "");
   const ready = robotAt && sensor;
   setLed("led_ready", ready ? "on" : "");
-  // Auto-run flashing/testing when Ready (manual mode)
-  if (ready && !busy && !auto) {
+
+  // Debounce: يبدأ فقط وقت ready ينتقل من false → true
+  if (ready && !prevReady && !busy && !auto) {
     processReadyCycle();
   }
+  prevReady = ready;
 }
 
 /* ---------- Buttons (manual) ---------- */
@@ -291,11 +326,17 @@ function animateBar(id, duration){
     (function step(now){
       const p = Math.min(1, (now-start)/duration);
       $(id).style.width = (p*100)+"%";
+
+      // تحديث النسبة
+      if(id==="bar_flash") $("txt_flash").textContent = Math.round(p*100)+"%";
+      if(id==="bar_test") $("txt_test").textContent  = Math.round(p*100)+"%";
+
       if(stopFlag || p>=1) return resolve();
       requestAnimationFrame(step);
     })(start);
   });
 }
+
 
 /* ---------- Auto process when Ready (manual mode) ---------- */
 async function processReadyCycle(){
