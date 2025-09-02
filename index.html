@@ -203,18 +203,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Buttons ---
-  $("btnRobot").onclick = ()=>{
-    robotAt = 1 - robotAt;
-    $("btnRobot").classList.toggle("active", !!robotAt);
-    $("btnRobot").textContent = `RobotAt = ${robotAt}`;
-    refreshLEDs();
-  };
-  $("btnSensor").onclick = ()=>{
-    sensor = 1 - sensor;
-    $("btnSensor").classList.toggle("active", !!sensor);
-    $("btnSensor").textContent = `Sensor = ${sensor}`;
-    refreshLEDs();
-  };
+// --- Buttons ---
+$("btnRobot").onclick = ()=>{ setRobotAt(1 - robotAt); refreshLEDs(); };
+$("btnSensor").onclick = ()=>{ setSensor(1 - sensor);  refreshLEDs(); };
+
 
   $("btnAuto").onclick = async ()=>{
     console.log("Auto clicked");               // للتأكد
@@ -276,19 +268,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function runCycle(){
     log("Auto cycle started","log-other");
-    fill("bar_flash",0); fill("bar_test",0);
-    setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
-    $("panel").setAttribute("opacity",1); $("panelCarry").setAttribute("opacity",0);
-
+fill("bar_flash",0); fill("bar_test",0);
+setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
+$("panel").setAttribute("opacity",1); $("panelCarry").setAttribute("opacity",0);
+  setRobotAt(0);
+setSensor(0);
+refreshLEDs();
     await moveToolTo(P1);
     grip(true); log("Gripper CLOSE (pick panel)");
-    robotAt=0; sensor=0; refreshLEDs();
+   setSensor(0);
+setRobotAt(0);
+refreshLEDs();
 
     await moveToolTo(P2); log("Move over stand","log-other");
     await moveToolTo(P3); log("Arrived at place","log-other");
 
     grip(false); log("Gripper OPEN (place panel)");
-    robotAt=1; sensor=1; refreshLEDs();
+    setSensor(1);
+setRobotAt(1);
+refreshLEDs();
 
     setLed("led_flash","busy"); log("Flashing started","log-flash");
     await animateBar("bar_flash",1200);
@@ -302,7 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
     await sleep(800);
     setLed("led_ack",""); log("ACK OFF","log-ack");
 
-    robotAt=0; refreshLEDs();
+// الروبوت يطيّح DO بعد الـACK
+setRobotAt(0);
+// Sensor يبقى 1 لأن اللوحة بقيت على الستاند
+refreshLEDs();
     log("Auto cycle finished","log-other");
   }
 
@@ -338,6 +339,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setLed("led_ack",""); log("ACK OFF","log-ack");
     busy=false;
   }
+function setRobotAt(v){
+  robotAt = v ? 1 : 0;
+  $("btnRobot").classList.toggle("active", !!robotAt);
+  $("btnRobot").textContent = `RobotAt = ${robotAt}`;
+}
+function setSensor(v){
+  sensor = v ? 1 : 0;
+  $("btnSensor").classList.toggle("active", !!sensor);
+  $("btnSensor").textContent = `Sensor = ${sensor}`;
+}
 
   // init
   refreshLEDs();
