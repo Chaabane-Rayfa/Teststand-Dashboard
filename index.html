@@ -1,3 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>🦾 Doosan Teststand — Advanced Simulation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>
+  :root{
+    --bg:#eef2f7; --card:#fff; --text:#2c3e50; --muted:#7f8c8d;
+    --blue:#2980b9; --blue2:#6dd5fa; --green:#27ae60; --yellow:#f1c40f; --red:#e74c3c; --orange:#e67e22;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:linear-gradient(90deg,#34495e,#2c3e50);color:#fff;padding:14px 22px;font-size:20px;font-weight:600}
+  main{display:grid;grid-template-columns:1.1fr 0.9fr;gap:20px;align-items:start;padding:20px}
+  @media(max-width:1024px){ main{grid-template-columns:1fr} }
+
+  .card{background:var(--card);border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:18px}
+  h2{margin:0 0 12px 0;font-size:18px}
+
+  /* Controls */
+  .controls{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+  button{padding:10px 16px;border:none;border-radius:10px;cursor:pointer;color:#fff;font-weight:700}
+  .btn-robot{background:var(--blue)}
+  .btn-robot.active{background:#3498db}
+  .btn-sensor{background:var(--orange)}
+  .btn-sensor.active{background:#f39c12}
+  .btn-auto{background:var(--green)}
+  .btn-stop{background:var(--red)}
+  .hint{color:var(--muted);font-size:13px;margin-top:6px}
+
+  /* LEDs + progress */
+  .row{display:flex;align-items:center;margin:9px 0}
+  .led{width:22px;height:22px;border-radius:50%;margin-right:10px;background:#bdc3c7;box-shadow:inset 0 0 6px rgba(0,0,0,.25);transition:all .25s}
+  .led.on{background:var(--green);box-shadow:0 0 10px var(--green)}
+  .led.busy{background:var(--yellow);box-shadow:0 0 10px var(--yellow)}
+  .led.fail{background:var(--red);box-shadow:0 0 10px var(--red)}
+  .label{font-size:15px}
+  .progress{height:10px;background:#f0f3f5;border-radius:6px;overflow:hidden;margin-top:6px}
+  .bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue2));transition:width .25s linear}
+
+  /* Log */
+  #log{font-size:13px;max-height:260px;overflow:auto;background:#1e272e;color:#ecf0f1;border-radius:10px;padding:12px;line-height:1.4}
+  .log-flash{color:#f1c40f}.log-test{color:#6ab0f3}.log-ack{color:#2ecc71}.log-other{color:#bdc3c7}
+
+  /* Scene (SVG) */
+  .scene-card{position:relative}
+  .scene-wrap{width:100%;aspect-ratio:16/9;background:#f8fbff;border:1px solid #e3e7ee;border-radius:12px;overflow:hidden}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #e5e9ef;border-radius:999px;padding:4px 8px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot-pick{background:#8e44ad}.dot-over{background:#16a085}.dot-place{background:#c0392b}
+</style>
+</head>
+<body>
+<header>🦾 Doosan Teststand — Advanced Simulation</header>
+
+<main>
+  <!-- LEFT: Scene -->
+  <div class="card scene-card">
+    <h2>Robot & Teststand (Simulation)</h2>
+    <div class="scene-wrap">
+      <!-- Scalable SVG workspace -->
+      <svg id="svg" viewBox="0 0 800 450" width="100%" height="100%">
+        <!-- Floor -->
+        <rect x="0" y="350" width="800" height="100" fill="#e8edf5"/>
+        <!-- Teststand -->
+        <rect x="520" y="280" width="200" height="70" rx="8" fill="#ccd9ea" stroke="#9cb5d6"/>
+        <rect x="560" y="260" width="120" height="20" rx="4" fill="#b7c8e1"/>
+        <!-- Panel on stand (target) -->
+        <rect id="panel" x="560" y="255" width="60" height="12" rx="2" fill="#2ecc71" opacity="0.0"/>
+
+        <!-- Pick area (stack) -->
+        <rect x="120" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
+        <rect x="140" y="280" width="60" height="16" rx="3" fill="#bfcde2"/>
+
+        <!-- Markers -->
+        <circle cx="170" cy="280" r="5" fill="#8e44ad"/>   <!-- P1 -->
+        <circle cx="520" cy="220" r="5" fill="#16a085"/>   <!-- P2 -->
+        <circle cx="600" cy="255" r="5" fill="#c0392b"/>   <!-- P3 -->
+
+        <!-- Robot base -->
+        <g id="robot" transform="translate(250,340)">
+          <rect x="-25" y="5" width="50" height="20" rx="6" fill="#8aa0b8"/>
+          <!-- Link1 -->
+          <g id="link1" transform="rotate(-60)">
+            <rect x="0" y="-10" width="140" height="20" rx="10" fill="#2c3e50"/>
+            <!-- Joint1 -->
+            <circle cx="0" cy="0" r="10" fill="#34495e"/>
+            <!-- Link2 -->
+            <g id="link2" transform="translate(140,0) rotate(40)">
+              <rect x="0" y="-9" width="120" height="18" rx="9" fill="#2c3e50"/>
+              <!-- Joint2 -->
+              <circle cx="0" cy="0" r="9" fill="#34495e"/>
+              <!-- End effector -->
+              <g id="tool" transform="translate(120,0)">
+                <rect x="-10" y="-16" width="20" height="32" rx="4" fill="#7f8c8d"/>
+                <!-- Gripper fingers -->
+                <rect id="fingerL" x="-16" y="-3" width="8" height="6" rx="2" fill="#95a5a6"/>
+                <rect id="fingerR" x="8" y="-3" width="8" height="6" rx="2" fill="#95a5a6"/>
+                <!-- Carried panel -->
+                <rect id="panelCarry" x="-18" y="-6" width="36" height="12" rx="2" fill="#2ecc71" opacity="0"/>
+              </g>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="legend">
+      <span class="badge"><span class="dot dot-pick"></span> P1 Pick</span>
+      <span class="badge"><span class="dot dot-over"></span> P2 Over Stand</span>
+      <span class="badge"><span class="dot dot-place"></span> P3 Place</span>
+      <span class="badge">Link lengths: L1=140, L2=120 (sim)</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Controls + LEDs -->
+  <div class="card">
+    <h2>Controls</h2>
+    <div class="controls">
+      <button id="btnRobot" class="btn-robot">RobotAt = 0</button>
+      <button id="btnSensor" class="btn-sensor">Sensor = 0</button>
+      <button id="btnAuto" class="btn-auto">Auto Cycle</button>
+      <button id="btnStop" class="btn-stop" disabled>Stop</button>
+    </div>
+    <p class="hint">• في وضع <b>Auto</b> الروبوت يتحرّك P1→P2→P3 ويعمل Gripper تلقائيًا.<br/>• الأزرار RobotAt/Sensor للتجربة اليدوية (Ready يطلق السيكونس تلقائيًا).</p>
+
+    <h2 style="margin-top:16px">Status LEDs</h2>
+    <div class="row"><div id="led_robot" class="led"></div><div class="label">Robot At_Target</div></div>
+    <div class="row"><div id="led_sensor" class="led"></div><div class="label">Panel Sensor</div></div>
+    <div class="row"><div id="led_ready" class="led"></div><div class="label">Ready (Both=1)</div></div>
+
+    <div class="row"><div id="led_flash" class="led"></div><div class="label">Flashing</div></div>
+    <div class="progress"><div id="bar_flash" class="bar"></div></div>
+
+    <div class="row"><div id="led_test" class="led"></div><div class="label">Testing</div></div>
+    <div class="progress"><div id="bar_test" class="bar"></div></div>
+
+    <div class="row"><div id="led_ack" class="led"></div><div class="label">ACK to Robot</div></div>
+  </div>
+
+  <!-- Log -->
+  <div class="card" style="grid-column:1 / -1">
+    <h2>Event Log</h2>
+    <div id="log"></div>
+  </div>
+</main>
+
 <script>
 /* ---------- State / UI helpers ---------- */
 let robotAt=0, sensor=0, busy=false, auto=false, stopFlag=false;
@@ -176,3 +324,5 @@ async function processReadyCycle(){
 refreshLEDs();
 log("Ready — use Auto Cycle or manual toggles.");
 </script>
+</body>
+</html>
