@@ -287,11 +287,13 @@ $("btnAuto").onclick = async ()=>{
 $("btnStop").onclick = ()=>{ stopFlag=true; log("STOP requested","log-other"); };
 
 async function runCycle(){
+    log("Auto cycle started","log-other");
   fill("bar_flash",0); fill("bar_test",0);
   setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
   $("#panel").setAttribute("opacity",1); $("#panelCarry").setAttribute("opacity",0);
 
   await moveToolTo(P1);
+  
   grip(true); log("Gripper CLOSE (pick panel)");
   robotAt=0; sensor=0; refreshLEDs();
 
@@ -317,6 +319,7 @@ async function runCycle(){
   setLed("led_ack",""); log("ACK OFF","log-ack");
 
   robotAt=0; refreshLEDs();
+    log("Auto cycle started","log-other");
 }
 
 /* ---------- Progress animation ---------- */
