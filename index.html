@@ -91,7 +91,12 @@
         <rect x="520" y="280" width="200" height="70" rx="8" fill="#ccd9ea" stroke="#9cb5d6"/>
         <rect x="560" y="260" width="120" height="20" rx="4" fill="#b7c8e1"/>
         <!-- Panel on stand (target) -->
-        <rect id="panel" x="560" y="255" width="60" height="12" rx="2" fill="#2ecc71" opacity="0.0"/>
+   <!-- Panel at P1 (stack) - visible at start -->
+<rect id="panelStack" x="152" y="274" width="36" height="12" rx="2" fill="#2ecc71" opacity="1"/>
+
+<!-- Panel at P3 (on stand) - hidden at start -->
+<rect id="panelStand" x="580" y="255" width="60" height="12" rx="2" fill="#2ecc71" opacity="0"/>
+
 
         <!-- Pick area (stack) -->
         <rect x="120" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
@@ -259,21 +264,40 @@ $("btnSensor").onclick = ()=>{ setSensor(1 - sensor);  refreshLEDs(); };
     });
   }
 
-  function grip(close){
-    $("fingerL").setAttribute("x", close? -14 : -16);
-    $("fingerR").setAttribute("x", close? 6 : 8);
-    $("panelCarry").setAttribute("opacity", close? 1 : 0);
-    $("panel").setAttribute("opacity", close? 0 : 1);
+ function grip(close){
+  // أصابع الماسك
+  $("fingerL").setAttribute("x", close? -14 : -16);
+  $("fingerR").setAttribute("x", close?  6 :   8);
+
+  if (close){
+    // Pick: خُذ اللوحة من P1 → أخفي stack، أظهر carry
+    $("panelStack").setAttribute("opacity", 0);
+    $("panelCarry").setAttribute("opacity", 1);
+  }else{
+    // Place: حط اللوحة على الستاند → أخفي carry، أظهر stand
+    $("panelCarry").setAttribute("opacity", 0);
+    $("panelStand").setAttribute("opacity", 1);
   }
+}
+
 
   async function runCycle(){
     log("Auto cycle started","log-other");
 fill("bar_flash",0); fill("bar_test",0);
 setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
-$("panel").setAttribute("opacity",1); $("panelCarry").setAttribute("opacity",0);
-  setRobotAt(0);
+// وضع البداية:
+// - اللوحة مرئية فوق P1 (panelStack)
+// - الستاند فاضي (panelStand مخفية)
+// - الماسك فاضي (panelCarry مخفية)
+$("panelStack").setAttribute("opacity", 1);
+$("panelStand").setAttribute("opacity", 0);
+$("panelCarry").setAttribute("opacity", 0);
+
+// الإشارات في البداية: موش جاهز و Sensor=0
+setRobotAt(0);
 setSensor(0);
 refreshLEDs();
+
     await moveToolTo(P1);
     grip(true); log("Gripper CLOSE (pick panel)");
    setSensor(0);
@@ -287,7 +311,6 @@ refreshLEDs();
     setSensor(1);
 setRobotAt(1);
 refreshLEDs();
-
     setLed("led_flash","busy"); log("Flashing started","log-flash");
     await animateBar("bar_flash",1200);
     setLed("led_flash","on"); log("Flashing done","log-flash");
@@ -299,7 +322,6 @@ refreshLEDs();
     setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
     await sleep(800);
     setLed("led_ack",""); log("ACK OFF","log-ack");
-
 // الروبوت يطيّح DO بعد الـACK
 setRobotAt(0);
 // Sensor يبقى 1 لأن اللوحة بقيت على الستاند
