@@ -141,10 +141,11 @@
   <div class="card">
     <h2>Controls</h2>
     <div class="controls">
-      <button id="btnRobot" class="btn-robot">RobotAt = 0</button>
-      <button id="btnSensor" class="btn-sensor">Sensor = 0</button>
-      <button id="btnAuto" class="btn-auto">Auto Cycle</button>
-      <button id="btnStop" class="btn-stop" disabled>Stop</button>
+<button id="btnRobot"  class="btn-robot"  type="button">RobotAt = 0</button>
+<button id="btnSensor" class="btn-sensor" type="button">Sensor = 0</button>
+<button id="btnAuto"   class="btn-auto"   type="button">Auto Cycle</button>
+<button id="btnStop"   class="btn-stop"   type="button" disabled>Stop</button>
+
     </div>
     <p class="hint">• في وضع <b>Auto</b> الروبوت يتحرّك P1→P2→P3 ويعمل Gripper تلقائيًا.<br/>• الأزرار RobotAt/Sensor للتجربة اليدوية (Ready يطلق السيكونس تلقائيًا).</p>
 
@@ -178,195 +179,172 @@
 </main>
 
 <script>
-/* ---------- State / UI helpers ---------- */
-let robotAt=0, sensor=0, busy=false, auto=false, stopFlag=false;
+document.addEventListener('DOMContentLoaded', () => {
+  /* ---------- State / UI helpers ---------- */
+  let robotAt=0, sensor=0, busy=false, auto=false, stopFlag=false;
+  let prevReady = false;
 
-const $ = (id)=>document.getElementById(id);
-const setLed = (id, cls)=> { $(id).className = "led " + (cls||""); }
-const log = (msg, cls="log-other") => {
-  const t=new Date().toLocaleTimeString();
-  $("log").innerHTML = `<div class="${cls}">[${t}] ${msg}</div>` + $("log").innerHTML;
-}
-const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
-const fill = (id, v)=> { $(id).style.width = v + "%"; }
-
-/* ---------- LEDs update ---------- */
-let prevReady = false; // متغيّر عالمي جديد
-
-function refreshLEDs(){
-  setLed("led_robot", robotAt ? "on" : "");
-  setLed("led_sensor", sensor ? "on" : "");
-  const ready = robotAt && sensor;
-  setLed("led_ready", ready ? "on" : "");
-
-  // Debounce: يبدأ فقط وقت ready ينتقل من false → true
-  if (ready && !prevReady && !busy && !auto) {
-    processReadyCycle();
+  const $ = (id)=>document.getElementById(id);
+  const setLed = (id, cls)=> { $(id).className = "led " + (cls||""); }
+  const log = (msg, cls="log-other") => {
+    const t=new Date().toLocaleTimeString();
+    $("log").innerHTML = `<div class="${cls}">[${t}] ${msg}</div>` + $("log").innerHTML;
   }
-  prevReady = ready;
-}
+  const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
+  const fill = (id, v)=> { $(id).style.width = v + "%"; }
 
-/* ---------- Buttons (manual) ---------- */
-$("btnRobot").onclick = ()=>{
-  robotAt = 1 - robotAt;
-  $("btnRobot").classList.toggle("active", !!robotAt);
-  $("btnRobot").textContent = `RobotAt = ${robotAt}`;
-  refreshLEDs();
-};
-$("btnSensor").onclick = ()=>{
-  sensor = 1 - sensor;
-  $("btnSensor").classList.toggle("active", !!sensor);
-  $("btnSensor").textContent = `Sensor = ${sensor}`;
-  refreshLEDs();
-};
-
-/* ---------- Robot SVG kinematics ---------- */
-const base = {x:250, y:340};
-const L1 = 140, L2 = 120;
-const P1 = {x:170, y:280};   // pick
-const P2 = {x:520, y:220};   // over
-const P3 = {x:600, y:255};   // place
-
-function ik(x,y){
-  const dx = x-base.x, dy = y-base.y;
-  const D = (dx*dx + dy*dy - L1*L1 - L2*L2) / (2*L1*L2);
-  const c2 = Math.min(1, Math.max(-1, D));
-  const s2 = Math.sqrt(Math.max(0,1-c2*c2));
-  const th2 = Math.atan2(s2, c2);
-  const th1 = Math.atan2(dy, dx) - Math.atan2(L2*s2, L1+L2*c2);
-  return {th1, th2};
-}
-function setJoints(th1, th2){
-  $("#link1").setAttribute("transform",`rotate(${th1*180/Math.PI})`);
-  $("#link2").setAttribute("transform",`translate(${L1},0) rotate(${th2*180/Math.PI})`);
-}
-function getCurrentAngles(){
-  let a1 = -60*Math.PI/180, a2 = 40*Math.PI/180;
-  const t1 = $("#link1").getAttribute("transform");
-  const t2 = $("#link2").getAttribute("transform");
-  const m1 = /rotate\(([-\d.]+)\)/.exec(t1||"");
-  const m2 = /rotate\(([-\d.]+)\)/.exec(t2||"");
-  if(m1) a1 = parseFloat(m1[1])*Math.PI/180;
-  if(m2) a2 = parseFloat(m2[1])*Math.PI/180;
-  return {th1:a1, th2:a2};
-}
-function moveToolTo(pt, steps=60, ms=100){  // ms=30 باش تبان الحركة
-  return new Promise(async (res)=>{
-    const {th1:cur1, th2:cur2} = getCurrentAngles();
-    const {th1:t1,th2:t2} = ik(pt.x, pt.y);
-    for(let i=1;i<=steps;i++){
-      if(stopFlag) break;
-      const a1 = cur1 + (t1-cur1)*i/steps;
-      const a2 = cur2 + (t2-cur2)*i/steps;
-      setJoints(a1,a2);
-      await sleep(ms);
-    }
-    res();
-  });
-}
-
-/* ---------- Gripper & panel visuals ---------- */
-function grip(close){
-  $("#fingerL").setAttribute("x", close? -14 : -16);
-  $("#fingerR").setAttribute("x", close? 6 : 8);
-  $("#panelCarry").setAttribute("opacity", close? 1 : 0);
-  $("#panel").setAttribute("opacity", close? 0 : 1);
-}
-
-/* ---------- Auto cycle ---------- */
-$("btnAuto").onclick = async ()=>{
-  if(auto) return;
-  auto = true; stopFlag=false;
-  $("btnAuto").disabled = true; $("btnStop").disabled=false;
-  try{
-    await runCycle();
-  } finally {
-    auto=false; $("btnAuto").disabled=false; $("btnStop").disabled=true;
+  function refreshLEDs(){
+    setLed("led_robot", robotAt ? "on" : "");
+    setLed("led_sensor", sensor ? "on" : "");
+    const ready = robotAt && sensor;
+    setLed("led_ready", ready ? "on" : "");
+    if (ready && !prevReady && !busy && !auto) processReadyCycle();
+    prevReady = ready;
   }
-};
-$("btnStop").onclick = ()=>{ stopFlag=true; log("STOP requested","log-other"); };
 
-async function runCycle(){
+  // --- Buttons ---
+  $("btnRobot").onclick = ()=>{
+    robotAt = 1 - robotAt;
+    $("btnRobot").classList.toggle("active", !!robotAt);
+    $("btnRobot").textContent = `RobotAt = ${robotAt}`;
+    refreshLEDs();
+  };
+  $("btnSensor").onclick = ()=>{
+    sensor = 1 - sensor;
+    $("btnSensor").classList.toggle("active", !!sensor);
+    $("btnSensor").textContent = `Sensor = ${sensor}`;
+    refreshLEDs();
+  };
+
+  $("btnAuto").onclick = async ()=>{
+    console.log("Auto clicked");               // للتأكد
+    if(auto) return;
+    auto = true; stopFlag=false;
+    $("btnAuto").disabled = true; $("btnStop").disabled=false;
+    try { await runCycle(); }
+    finally { auto=false; $("btnAuto").disabled=false; $("btnStop").disabled=true; }
+  };
+
+  $("btnStop").onclick = ()=>{ stopFlag=true; log("STOP requested","log-other"); };
+
+  // --- Kinematics & movement ---
+  const base = {x:250, y:340};
+  const L1 = 140, L2 = 120;
+  const P1 = {x:170, y:280}, P2 = {x:520, y:220}, P3 = {x:600, y:255};
+
+  function ik(x,y){
+    const dx=x-base.x, dy=y-base.y;
+    const D=(dx*dx+dy*dy-L1*L1-L2*L2)/(2*L1*L2);
+    const c2=Math.min(1,Math.max(-1,D)), s2=Math.sqrt(Math.max(0,1-c2*c2));
+    const th2=Math.atan2(s2,c2);
+    const th1=Math.atan2(dy,dx)-Math.atan2(L2*s2, L1+L2*c2);
+    return {th1,th2};
+  }
+  function setJoints(th1, th2){
+    $("link1").setAttribute("transform",`rotate(${th1*180/Math.PI})`);
+    $("link2").setAttribute("transform",`translate(${L1},0) rotate(${th2*180/Math.PI})`);
+  }
+  function getCurrentAngles(){
+    let a1=-60*Math.PI/180, a2=40*Math.PI/180;
+    const m1=/rotate\(([-\d.]+)\)/.exec($("link1").getAttribute("transform")||"");
+    const m2=/rotate\(([-\d.]+)\)/.exec($("link2").getAttribute("transform")||"");
+    if(m1) a1=parseFloat(m1[1])*Math.PI/180;
+    if(m2) a2=parseFloat(m2[1])*Math.PI/180;
+    return {th1:a1, th2:a2};
+  }
+  function moveToolTo(pt, steps=60, ms=30){   // أبطأ باش تبان الحركة
+    return new Promise(async (res)=>{
+      const {th1:cur1, th2:cur2}=getCurrentAngles();
+      const {th1:t1, th2:t2}=ik(pt.x, pt.y);
+      for(let i=1;i<=steps;i++){
+        if(stopFlag) break;
+        const a1=cur1+(t1-cur1)*i/steps;
+        const a2=cur2+(t2-cur2)*i/steps;
+        setJoints(a1,a2);
+        await sleep(ms);
+      }
+      res();
+    });
+  }
+
+  function grip(close){
+    $("fingerL").setAttribute("x", close? -14 : -16);
+    $("fingerR").setAttribute("x", close? 6 : 8);
+    $("panelCarry").setAttribute("opacity", close? 1 : 0);
+    $("panel").setAttribute("opacity", close? 0 : 1);
+  }
+
+  async function runCycle(){
     log("Auto cycle started","log-other");
-  fill("bar_flash",0); fill("bar_test",0);
-  setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
-  $("#panel").setAttribute("opacity",1); $("#panelCarry").setAttribute("opacity",0);
+    fill("bar_flash",0); fill("bar_test",0);
+    setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
+    $("panel").setAttribute("opacity",1); $("panelCarry").setAttribute("opacity",0);
 
-  await moveToolTo(P1);
-  
-  grip(true); log("Gripper CLOSE (pick panel)");
-  robotAt=0; sensor=0; refreshLEDs();
+    await moveToolTo(P1);
+    grip(true); log("Gripper CLOSE (pick panel)");
+    robotAt=0; sensor=0; refreshLEDs();
 
-  await moveToolTo(P2);
-  log("Move over stand","log-other");
+    await moveToolTo(P2); log("Move over stand","log-other");
+    await moveToolTo(P3); log("Arrived at place","log-other");
 
-  await moveToolTo(P3);
-  log("Arrived at place","log-other");
+    grip(false); log("Gripper OPEN (place panel)");
+    robotAt=1; sensor=1; refreshLEDs();
 
-  grip(false); log("Gripper OPEN (place panel)");
-  robotAt=1; sensor=1; refreshLEDs();
+    setLed("led_flash","busy"); log("Flashing started","log-flash");
+    await animateBar("bar_flash",1200);
+    setLed("led_flash","on"); log("Flashing done","log-flash");
 
-  setLed("led_flash","busy"); log("Flashing started","log-flash");
-  await animateBar("bar_flash", 1200);
-  setLed("led_flash","on"); log("Flashing done","log-flash");
+    setLed("led_test","busy"); log("Testing started","log-test");
+    await animateBar("bar_test",1500);
+    setLed("led_test","on"); log("Testing done","log-test");
 
-  setLed("led_test","busy"); log("Testing started","log-test");
-  await animateBar("bar_test", 1500);
-  setLed("led_test","on"); log("Testing done","log-test");
+    setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
+    await sleep(800);
+    setLed("led_ack",""); log("ACK OFF","log-ack");
 
-  setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
-  await sleep(800);
-  setLed("led_ack",""); log("ACK OFF","log-ack");
+    robotAt=0; refreshLEDs();
+    log("Auto cycle finished","log-other");
+  }
 
-  robotAt=0; refreshLEDs();
-    log("Auto cycle started","log-other");
-}
+  function animateBar(id, duration){
+    return new Promise((resolve)=>{
+      const start=performance.now();
+      (function step(now){
+        const p=Math.min(1,(now-start)/duration);
+        $(id).style.width=(p*100)+"%";
+        if(id==="bar_flash") $("txt_flash").textContent=Math.round(p*100)+"%";
+        if(id==="bar_test")  $("txt_test").textContent=Math.round(p*100)+"%";
+        if(stopFlag || p>=1) return resolve();
+        requestAnimationFrame(step);
+      })(start);
+    });
+  }
 
-/* ---------- Progress animation ---------- */
-function animateBar(id, duration){
-  return new Promise((resolve)=>{
-    const start = performance.now();
-    (function step(now){
-      const p = Math.min(1, (now-start)/duration);
-      $(id).style.width = (p*100)+"%";
+  async function processReadyCycle(){
+    if (busy) return; busy = true;
+    fill("bar_flash",0); fill("bar_test",0);
+    setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
 
-      // تحديث النسبة
-      if(id==="bar_flash") $("txt_flash").textContent = Math.round(p*100)+"%";
-      if(id==="bar_test") $("txt_test").textContent  = Math.round(p*100)+"%";
+    setLed("led_flash","busy"); log("Flashing started","log-flash");
+    await animateBar("bar_flash",1200);
+    setLed("led_flash","on"); log("Flashing done","log-flash");
 
-      if(stopFlag || p>=1) return resolve();
-      requestAnimationFrame(step);
-    })(start);
-  });
-}
+    setLed("led_test","busy"); log("Testing started","log-test");
+    await animateBar("bar_test",1500);
+    setLed("led_test","on"); log("Testing done","log-test");
 
+    setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
+    await sleep(800);
+    setLed("led_ack",""); log("ACK OFF","log-ack");
+    busy=false;
+  }
 
-/* ---------- Auto process when Ready (manual mode) ---------- */
-async function processReadyCycle(){
-  if (busy) return;
-  busy = true;
-
-  fill("bar_flash",0); fill("bar_test",0);
-  setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
-
-  setLed("led_flash","busy"); log("Flashing started","log-flash");
-  await animateBar("bar_flash", 1200);
-  setLed("led_flash","on");   log("Flashing done","log-flash");
-
-  setLed("led_test","busy");  log("Testing started","log-test");
-  await animateBar("bar_test", 1500);
-  setLed("led_test","on");    log("Testing done","log-test");
-
-  setLed("led_ack","on");     log("ACK ON → Robot","log-ack");
-  await sleep(800);
-  setLed("led_ack","");       log("ACK OFF","log-ack");
-
-  busy = false;
-}
-
-/* ---------- Init ---------- */
-refreshLEDs();
-log("Ready — use Auto Cycle or manual toggles.");
+  // init
+  refreshLEDs();
+  console.log("Auto button ready:", !!$("btnAuto"));
+  log("Ready — use Auto Cycle or manual toggles.");
+});
 </script>
+
 </body>
 </html>
