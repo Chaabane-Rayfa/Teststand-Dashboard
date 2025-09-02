@@ -2,135 +2,312 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>🦾 Doosan Teststand — Simulation Dashboard</title>
+<title>🦾 Doosan Teststand — Advanced Simulation</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <style>
-body{font-family:Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#eef2f7;color:#333}
-header{background:linear-gradient(90deg,#34495e,#2c3e50);color:#fff;padding:16px 24px;
-       font-size:20px;font-weight:600;letter-spacing:.5px}
-.card{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);
-      padding:20px;flex:1 1 300px;max-width:360px;transition:transform .2s}
-.card:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
-button{padding:10px 18px;margin:6px;border:none;border-radius:8px;cursor:pointer;
-       font-weight:600;font-size:14px;color:#fff;transition:transform .2s}
-button:hover{transform:scale(1.05)}
-#btnRobot{background:#2980b9} /* Blue */
-#btnRobot.active{background:#3498db}
-#btnSensor{background:#d35400} /* Orange */
-#btnSensor.active{background:#e67e22}
-.led{width:26px;height:26px;border-radius:50%;margin-right:12px;background:#bdc3c7;
-     box-shadow:inset 0 0 6px rgba(0,0,0,.3);transition:background .4s,box-shadow .4s}
-.led.on{background:#27ae60;box-shadow:0 0 12px #27ae60}
-.led.busy{background:#f1c40f;box-shadow:0 0 12px #f1c40f}
-.led.fail{background:#e74c3c;box-shadow:0 0 12px #e74c3c}
-.progress{height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden;margin-top:8px}
-.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#2980b9,#6dd5fa);
-              transition:width .3s linear}
-#log{font-size:13px;max-height:260px;overflow:auto;background:#1e272e;color:#ecf0f1;
-     border-radius:8px;padding:12px;line-height:1.4}
-.log-flash{color:#f1c40f}
-.log-test{color:#6ab0f3}
-.log-ack{color:#2ecc71}
-.log-other{color:#bdc3c7}
+  :root{
+    --bg:#eef2f7; --card:#fff; --text:#2c3e50; --muted:#7f8c8d;
+    --blue:#2980b9; --blue2:#6dd5fa; --green:#27ae60; --yellow:#f1c40f; --red:#e74c3c; --orange:#e67e22;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:linear-gradient(90deg,#34495e,#2c3e50);color:#fff;padding:14px 22px;font-size:20px;font-weight:600}
+  main{display:grid;grid-template-columns:1.1fr 0.9fr;gap:20px;align-items:start;padding:20px}
+  @media(max-width:1024px){ main{grid-template-columns:1fr} }
 
+  .card{background:var(--card);border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:18px}
+  h2{margin:0 0 12px 0;font-size:18px}
+
+  /* Controls */
+  .controls{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+  button{padding:10px 16px;border:none;border-radius:10px;cursor:pointer;color:#fff;font-weight:700}
+  .btn-robot{background:var(--blue)}
+  .btn-robot.active{background:#3498db}
+  .btn-sensor{background:var(--orange)}
+  .btn-sensor.active{background:#f39c12}
+  .btn-auto{background:var(--green)}
+  .btn-stop{background:var(--red)}
+  .hint{color:var(--muted);font-size:13px;margin-top:6px}
+
+  /* LEDs + progress */
+  .row{display:flex;align-items:center;margin:9px 0}
+  .led{width:22px;height:22px;border-radius:50%;margin-right:10px;background:#bdc3c7;box-shadow:inset 0 0 6px rgba(0,0,0,.25);transition:all .25s}
+  .led.on{background:var(--green);box-shadow:0 0 10px var(--green)}
+  .led.busy{background:var(--yellow);box-shadow:0 0 10px var(--yellow)}
+  .led.fail{background:var(--red);box-shadow:0 0 10px var(--red)}
+  .label{font-size:15px}
+  .progress{height:10px;background:#f0f3f5;border-radius:6px;overflow:hidden;margin-top:6px}
+  .bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue2));transition:width .25s linear}
+
+  /* Log */
+  #log{font-size:13px;max-height:260px;overflow:auto;background:#1e272e;color:#ecf0f1;border-radius:10px;padding:12px;line-height:1.4}
+  .log-flash{color:#f1c40f}.log-test{color:#6ab0f3}.log-ack{color:#2ecc71}.log-other{color:#bdc3c7}
+
+  /* Scene (SVG) */
+  .scene-card{position:relative}
+  .scene-wrap{width:100%;aspect-ratio:16/9;background:#f8fbff;border:1px solid #e3e7ee;border-radius:12px;overflow:hidden}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #e5e9ef;border-radius:999px;padding:4px 8px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot-pick{background:#8e44ad}.dot-over{background:#16a085}.dot-place{background:#c0392b}
 </style>
 </head>
 <body>
-<header>🦾 Doosan Teststand — Simulation Dashboard</header>
+<header>🦾 Doosan Teststand — Advanced Simulation</header>
+
 <main>
-  <div class="card">
-    <h2>Controls</h2>
-    <button id="btnRobot">RobotAt = 0</button>
-    <button id="btnSensor">Sensor = 0</button>
-    <p id="cycleCount">Cycles: 0</p>
+  <!-- LEFT: Scene -->
+  <div class="card scene-card">
+    <h2>Robot & Teststand (Simulation)</h2>
+    <div class="scene-wrap">
+      <!-- Scalable SVG workspace -->
+      <svg id="svg" viewBox="0 0 800 450" width="100%" height="100%">
+        <!-- Floor -->
+        <rect x="0" y="350" width="800" height="100" fill="#e8edf5"/>
+        <!-- Teststand -->
+        <rect x="520" y="280" width="200" height="70" rx="8" fill="#ccd9ea" stroke="#9cb5d6"/>
+        <rect x="560" y="260" width="120" height="20" rx="4" fill="#b7c8e1"/>
+        <!-- Panel on stand (target) -->
+        <rect id="panel" x="560" y="255" width="60" height="12" rx="2" fill="#2ecc71" opacity="0.0"/>
+
+        <!-- Pick area (stack) -->
+        <rect x="120" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
+        <rect x="140" y="280" width="60" height="16" rx="3" fill="#bfcde2"/>
+
+        <!-- Markers -->
+        <circle cx="170" cy="280" r="5" fill="#8e44ad"/>   <!-- P1 -->
+        <circle cx="520" cy="220" r="5" fill="#16a085"/>   <!-- P2 -->
+        <circle cx="600" cy="255" r="5" fill="#c0392b"/>   <!-- P3 -->
+
+        <!-- Robot base -->
+        <g id="robot" transform="translate(250,340)">
+          <rect x="-25" y="5" width="50" height="20" rx="6" fill="#8aa0b8"/>
+          <!-- Link1 -->
+          <g id="link1" transform="rotate(-60)">
+            <rect x="0" y="-10" width="140" height="20" rx="10" fill="#2c3e50"/>
+            <!-- Joint1 -->
+            <circle cx="0" cy="0" r="10" fill="#34495e"/>
+            <!-- Link2 -->
+            <g id="link2" transform="translate(140,0) rotate(40)">
+              <rect x="0" y="-9" width="120" height="18" rx="9" fill="#2c3e50"/>
+              <!-- Joint2 -->
+              <circle cx="0" cy="0" r="9" fill="#34495e"/>
+              <!-- End effector -->
+              <g id="tool" transform="translate(120,0)">
+                <rect x="-10" y="-16" width="20" height="32" rx="4" fill="#7f8c8d"/>
+                <!-- Gripper fingers -->
+                <rect id="fingerL" x="-16" y="-3" width="8" height="6" rx="2" fill="#95a5a6"/>
+                <rect id="fingerR" x="8" y="-3" width="8" height="6" rx="2" fill="#95a5a6"/>
+                <!-- Carried panel -->
+                <rect id="panelCarry" x="-18" y="-6" width="36" height="12" rx="2" fill="#2ecc71" opacity="0"/>
+              </g>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="legend">
+      <span class="badge"><span class="dot dot-pick"></span> P1 Pick</span>
+      <span class="badge"><span class="dot dot-over"></span> P2 Over Stand</span>
+      <span class="badge"><span class="dot dot-place"></span> P3 Place</span>
+      <span class="badge">Link lengths: L1=140, L2=120 (sim)</span>
+    </div>
   </div>
 
+  <!-- RIGHT: Controls + LEDs -->
   <div class="card">
-    <h2>Status LEDs</h2>
+    <h2>Controls</h2>
+    <div class="controls">
+      <button id="btnRobot" class="btn-robot">RobotAt = 0</button>
+      <button id="btnSensor" class="btn-sensor">Sensor = 0</button>
+      <button id="btnAuto" class="btn-auto">Auto Cycle</button>
+      <button id="btnStop" class="btn-stop">Stop</button>
+    </div>
+    <p class="hint">• في وضع <b>Auto</b> الروبوت يتحرّك P1→P2→P3 ويعمل Gripper تلقائيًا.<br/>• الأزرار RobotAt/Sensor تبقى للـmanual simulation.</p>
+
+    <h2 style="margin-top:16px">Status LEDs</h2>
     <div class="row"><div id="led_robot" class="led"></div><div class="label">Robot At_Target</div></div>
     <div class="row"><div id="led_sensor" class="led"></div><div class="label">Panel Sensor</div></div>
     <div class="row"><div id="led_ready" class="led"></div><div class="label">Ready (Both=1)</div></div>
+
     <div class="row"><div id="led_flash" class="led"></div><div class="label">Flashing</div></div>
-    <div class="progress"><div id="bar_flash" class="progress-bar"></div></div>
+    <div class="progress"><div id="bar_flash" class="bar"></div></div>
+
     <div class="row"><div id="led_test" class="led"></div><div class="label">Testing</div></div>
-    <div class="progress"><div id="bar_test" class="progress-bar"></div></div>
+    <div class="progress"><div id="bar_test" class="bar"></div></div>
+
     <div class="row"><div id="led_ack" class="led"></div><div class="label">ACK to Robot</div></div>
   </div>
 
-  <div class="card" style="flex:1 1 100%;max-width:100%">
+  <!-- Log -->
+  <div class="card" style="grid-column:1 / -1">
     <h2>Event Log</h2>
     <div id="log"></div>
   </div>
 </main>
 
 <script>
-let robot=0,sensor=0,busy=false,cycles=0;
+/* ---------- State / UI helpers ---------- */
+let robotAt=0, sensor=0, busy=false, auto=false, stopFlag=false;
 
-function setLed(id,state){document.getElementById(id).className="led "+(state||"")}
-function log(msg,cls="log-other"){
+const $ = (id)=>document.getElementById(id);
+const setLed = (id, cls)=> { $(id).className = "led " + (cls||""); }
+const log = (msg, cls="log-other") => {
   const t=new Date().toLocaleTimeString();
-  const line=`<div class="${cls}">[${t}] ${msg}</div>`;
-  const L=document.getElementById("log");
-  L.innerHTML=line+L.innerHTML;
+  $("log").innerHTML = `<div class="${cls}">[${t}] ${msg}</div>` + $("log").innerHTML;
 }
-function update(){
-  setLed("led_robot",robot?"on":"");
-  setLed("led_sensor",sensor?"on":"");
-  const ready=robot&&sensor;
-  setLed("led_ready",ready?"on":"");
-  if(ready&&!busy) simulateCycle();
+const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
+const fill = (id, v)=> { $(id).style.width = v + "%"; }
+
+/* ---------- LEDs update ---------- */
+function refreshLEDs(){
+  setLed("led_robot", robotAt?"on":"");
+  setLed("led_sensor", sensor?"on":"");
+  setLed("led_ready", (robotAt&&sensor)?"on":"");
 }
 
-async function simulateCycle(){
-  busy=true; cycles++;
-  document.getElementById("cycleCount").textContent="Cycles: "+cycles;
-  log("Cycle started (RobotAt=1 & Sensor=1)");
+/* ---------- Buttons (manual) ---------- */
+$("btnRobot").onclick = ()=>{
+  robotAt=1-robotAt;
+  $("btnRobot").classList.toggle("active", !!robotAt);
+  $("btnRobot").textContent = `RobotAt = ${robotAt}`;
+  refreshLEDs();
+};
+$("btnSensor").onclick = ()=>{
+  sensor=1-sensor;
+  $("btnSensor").classList.toggle("active", !!sensor);
+  $("btnSensor").textContent = `Sensor = ${sensor}`;
+  refreshLEDs();
+};
+
+/* ---------- Robot SVG kinematics ---------- */
+const base = {x:250, y:340};
+const L1 = 140, L2 = 120;
+// targets (scene coords):
+const P1 = {x:170, y:280};   // pick
+const P2 = {x:520, y:220};   // over
+const P3 = {x:600, y:255};   // place
+
+function ik(x,y){
+  // 2-link planar IK (elbow-down)
+  const dx = x-base.x, dy = y-base.y;
+  const D = (dx*dx + dy*dy - L1*L1 - L2*L2) / (2*L1*L2);
+  const c2 = Math.min(1, Math.max(-1, D));
+  const s2 = Math.sqrt(Math.max(0,1-c2*c2));
+  const th2 = Math.atan2(s2, c2);
+  const th1 = Math.atan2(dy, dx) - Math.atan2(L2*s2, L1+L2*c2);
+  return {th1, th2};
+}
+function setJoints(th1, th2){
+  $("#link1").setAttribute("transform",`rotate(${th1*180/Math.PI})`);
+  $("#link2").setAttribute("transform",`translate(${L1},0) rotate(${th2*180/Math.PI})`);
+}
+function moveToolTo(pt, steps=60, ms=8){
+  return new Promise(async (res)=>{
+    const {th1:cur1, th2:cur2} = getCurrentAngles();
+    const {th1:t1,th2:t2} = ik(pt.x, pt.y);
+    for(let i=1;i<=steps;i++){
+      if(stopFlag) break;
+      const a1 = cur1 + (t1-cur1)*i/steps;
+      const a2 = cur2 + (t2-cur2)*i/steps;
+      setJoints(a1,a2);
+      await sleep(ms);
+    }
+    res();
+  });
+}
+function getCurrentAngles(){
+  // read from transforms (fallback initial)
+  let a1 = -60*Math.PI/180, a2 = 40*Math.PI/180;
+  const t1 = $("#link1").getAttribute("transform"); // rotate(angle)
+  const t2 = $("#link2").getAttribute("transform"); // translate(L1,0) rotate(angle)
+  const m1 = /rotate\(([-\d.]+)\)/.exec(t1||"");
+  const m2 = /rotate\(([-\d.]+)\)/.exec(t2||"");
+  if(m1) a1 = parseFloat(m1[1])*Math.PI/180;
+  if(m2) a2 = parseFloat(m2[1])*Math.PI/180;
+  return {th1:a1, th2:a2};
+}
+
+/* ---------- Gripper & panel visuals ---------- */
+function grip(close){
+  $("#fingerL").setAttribute("x", close? -14 : -16);
+  $("#fingerR").setAttribute("x", close? 6 : 8);
+  $("#panelCarry").setAttribute("opacity", close? 1 : 0);
+  $("#panel").setAttribute("opacity", close? 0 : 1);
+}
+
+/* ---------- Auto cycle ---------- */
+$("btnAuto").onclick = async ()=>{
+  if(auto) return;
+  auto = true; stopFlag=false;
+  $("btnAuto").disabled = true; $("btnStop").disabled=false;
+  try{
+    await runCycle();
+  } finally {
+    auto=false; $("btnAuto").disabled=false; $("btnStop").disabled=true;
+  }
+};
+$("btnStop").onclick = ()=>{ stopFlag=true; log("STOP requested","log-other"); };
+
+async function runCycle(){
+  // Reset visuals
+  fill("bar_flash",0); fill("bar_test",0);
+  setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
+  $("#panel").setAttribute("opacity",1); $("#panelCarry").setAttribute("opacity",0);
+
+  // Go pick
+  await moveToolTo(P1);
+  grip(true); log("Gripper CLOSE (pick panel)");
+  // RobotAt when at P3 (after placement); Sensor when panel on stand
+  robotAt=0; sensor=0; refreshLEDs();
+
+  // Move over stand
+  await moveToolTo(P2);
+  log("Move over stand","log-other");
+
+  // Move to place
+  await moveToolTo(P3);
+  log("Arrived at place","log-other");
+
+  // Place panel
+  grip(false); log("Gripper OPEN (place panel)");
+  // simulate signals
+  robotAt=1; sensor=1; refreshLEDs();
+
   // Flash
-  setLed("led_flash","busy"); fillBar("bar_flash",0);
-  log("Flashing started","log-flash");
-  await animateBar("bar_flash",100,1200);
+  setLed("led_flash","busy"); log("Flashing started","log-flash");
+  await animateBar("bar_flash", 1200);
   setLed("led_flash","on"); log("Flashing done","log-flash");
 
   // Test
-  setLed("led_test","busy"); fillBar("bar_test",0);
-  log("Testing started","log-test");
-  await animateBar("bar_test",100,1500);
+  setLed("led_test","busy"); log("Testing started","log-test");
+  await animateBar("bar_test", 1500);
   setLed("led_test","on"); log("Testing done","log-test");
 
-  // Ack
+  // ACK pulse
   setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
-  await sleep(1000);
+  await sleep(800);
   setLed("led_ack",""); log("ACK OFF","log-ack");
-  busy=false;
+
+  // Robot drops DO afterwards
+  robotAt=0; refreshLEDs();
 }
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-function fillBar(id,w){document.getElementById(id).style.width=w+"%";}
-async function animateBar(id,to,dur){
-  const bar=document.getElementById(id);
-  const start=Date.now(),from=0;
-  return new Promise(r=>{
-    function step(){
-      const p=Math.min(1,(Date.now()-start)/dur);
-      bar.style.width=(from+(to-from)*p)+"%";
-      if(p<1) requestAnimationFrame(step); else r();
-    } step();
+
+function animateBar(id, duration){
+  return new Promise((resolve)=>{
+    const start = performance.now();
+    (function step(now){
+      const p = Math.min(1, (now-start)/duration);
+      $(id).style.width = (p*100)+"%";
+      if(stopFlag || p>=1) return resolve();
+      requestAnimationFrame(step);
+    })(start);
   });
 }
 
-document.getElementById("btnRobot").onclick=()=>{
-  robot=1-robot;
-  const b=document.getElementById("btnRobot");
-  b.classList.toggle("active",robot);
-  b.textContent=`RobotAt = ${robot}`;
-  update();
-};
-document.getElementById("btnSensor").onclick=()=>{
-  sensor=1-sensor;
-  const b=document.getElementById("btnSensor");
-  b.classList.toggle("active",sensor);
-  b.textContent=`Sensor = ${sensor}`;
-  update();
-};
+/* ---------- Init ---------- */
+refreshLEDs();
+log("Ready — use Auto Cycle or manual toggles.");
 </script>
 </body>
 </html>
