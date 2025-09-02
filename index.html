@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Doosan Web Dashboard (GitHub Pages)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:24px;max-width:780px}
+  h1{font-size:20px;margin:0 0 10px}
+  .row{display:flex;align-items:center;margin:8px 0}
+  .led{width:16px;height:16px;border-radius:50%;background:#aaa;margin-right:10px;box-shadow:0 0 0 1px #999 inset}
+  .label{min-width:240px}
+  .small{color:#555;font-size:12px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#f7f7f7;cursor:pointer}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .bar{display:flex;gap:8px;margin:12px 0}
+  .ok{color:#2ecc71}.warn{color:#f39c12}.err{color:#e74c3c}
+</style>
+</head>
+<body>
+<h1>Pick&Place • Flash • Test — Status (Browser + Web Serial)</h1>
+<div class="bar">
+  <button id="btnConnect">Connect</button>
+  <button id="btnAckOn" disabled>ACK ON</button>
+  <button id="btnAckOff" disabled>ACK OFF</button>
+  <label><input type="checkbox" id="autoAck" /> Auto-ACK when RobotAt=1 & Sensor=1</label>
+</div>
+
+<div class="row"><div id="led_robot" class="led"></div><div class="label">Robot At_Target (DO→PC/Arduino)</div><span id="v_robot">0</span></div>
+<div class="row"><div id="led_sensor" class="led"></div><div class="label">Panel Sensor on Teststand</div><span id="v_sensor">0</span></div>
+<div class="row"><div id="led_flash"  class="led"></div><div class="label">Flashing (visual only)</div><span id="v_flash">idle</span></div>
+<div class="row"><div id="led_test"   class="led"></div><div class="label">Testing (visual only)</div><span id="v_test">idle</span></div>
+<div class="row"><div id="led_ack"    class="led"></div><div class="label">ACK to Robot (Arduino → Robot DI)</div><span id="v_ack">0</span></div>
+
+<p class="small" id="msg">Not connected.</p>
+
+<script>
+let port, reader, writer, readBuf = "", timer;
+const S = {off:"#aaa", on:"#2ecc71", busy:"#f1c40f", fail:"#e74c3c"};
+function led(id,c){ document.getElementById(id).style.background=S[c]||S.off }
+function show(id,t){ document.getElementById(id).textContent = t }
+
+async function connect(){
+  try{
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 115200 });
+    const dec = new TextDecoderStream();
+    const enc = new TextEncoderStream();
+    port.readable.pipeTo(dec.writable);
+    enc.readable.pipeTo(port.writable);
+    reader = dec.readable.getReader();
+    writer = enc.writable.getWriter();
+    document.getElementById('btnAckOn').disabled = false;
+    document.getElementById('btnAckOff').disabled = false;
+    document.getElementById('msg').textContent = "Connected. Polling…";
+    readLoop();
+    timer = setInterval(()=> send("READ\n"), 200);
+  }catch(e){
+    document.getElementById('msg').textContent = "Connect failed: " + e;
+  }
+}
+
+async function readLoop(){
+  try{
+    while(true){
+      const { value, done } = await reader.read();
+      if(done) break;
+      readBuf += value;
+      let idx;
+      while((idx = readBuf.indexOf("\n")) >= 0){
+        const line = readBuf.slice(0, idx).trim();
+        readBuf = readBuf.slice(idx+1);
+        if(!line) continue;
+        try{
+          const d = JSON.parse(line);
+          if("robot_at" in d){ updateState(d) }
+          if("ack" in d){ show("v_ack", d.ack) }
+        }catch{}
+      }
+    }
+  }catch(e){
+    document.getElementById('msg').textContent = "Read error: " + e;
+  }
+}
+
+function updateState(d){
+  const robot = +d.robot_at||0, panel = +d.panel_ok||0;
+  led("led_robot", robot? "on":"off"); show("v_robot", robot);
+  led("led_sensor", panel? "on":"off"); show("v_sensor", panel);
+
+  // Purely visual flashing/testing states (you can hook to something else if needed)
+  const both = robot && panel;
+  led("led_flash",  both? "busy":"off"); show("v_flash", both? "running":"idle");
+  led("led_test",   both? "busy":"off"); show("v_test",  both? "running":"idle");
+
+  // Auto-ACK logic (browser -> Arduino)
+  const auto = document.getElementById('autoAck').checked;
+  if(auto){
+    if(both){ ack(1) } else if(robot===0){ ack(0) }
+  }
+}
+
+async function send(s){ if(writer) await writer.write(s) }
+async function ack(v){ show("v_ack", v); led("led_ack", v? "on":"off"); await send(`ACK ${v}\n`) }
+
+document.getElementById('btnConnect').onclick = connect;
+document.getElementById('btnAckOn').onclick  = ()=> ack(1);
+document.getElementById('btnAckOff').onclick = ()=> ack(0);
+
+if(!("serial" in navigator)){
+  document.getElementById('msg').innerHTML = 'Your browser does not support Web Serial. Use Chrome/Edge over HTTPS.';
+}
+</script>
+</body>
+</html>
