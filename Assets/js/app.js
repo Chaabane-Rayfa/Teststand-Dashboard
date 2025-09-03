@@ -37,13 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
   $("btnStop").onclick = ()=>{ stopFlag=true; log("STOP requested","log-other"); };
 
 // --- Kinematics & movement ---
-const base = { x: 620, y: 340 };
+const base = { x: 400, y: 340 };
 const L1 = 140, L2 = 120;
 
-const P1 = { x: 770, y: 280 };   // pick (يمين الستاند)
-const P2 = { x: 620, y: 240 };   // فوق الستاند
-const P3 = { x: 620, y: 280 };   // على الستاند (place)
-const P4 = { x: 470, y: 280 };   // drop-off (يسار الستاند)
+const P1 = { x: 550, y: 280 };   // يمين الستاند
+const P2 = { x: 400, y: 240 };   // فوق الستاند
+const P3 = { x: 400, y: 280 };   // على الستاند
+const P4 = { x: 250, y: 280 };   // يسار الستاند
+
 
   function ik(x,y){
     const dx=x-base.x, dy=y-base.y;
