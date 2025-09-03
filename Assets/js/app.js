@@ -106,6 +106,7 @@ function pickFromStand(){
 function placeAtP4(){
   $("fingerL").setAttribute("x", -16);
   $("fingerR").setAttribute("x",  8);
+  show("panelStand", 0); 
   show("panelCarry", 0);
   show("panelP4", 1);
 }
@@ -141,7 +142,7 @@ setRobotAt(0); setSensor(0); refreshLEDs();
    // Pick من P1
 await moveToolTo(P1);
 pickFromStack(); log("Pick panel from P1");
-await sleep(300);
+await sleep(200);
 
 // Move over stand → place على الستاند
 await moveToolTo(P2);
@@ -160,12 +161,13 @@ setLed("led_test","on"); log("Testing done","log-test");
 
 // ACK
 setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
-await sleep(800);
+await sleep(600);
 setLed("led_ack",""); log("ACK OFF","log-ack");
 
 // نشيل من الستاند → نخزّن في P4
 await moveToolTo(P3);
 pickFromStand(); log("Pick panel from stand (after test)");
+    log("DEBUG: panelStand opacity = " + $("panelStand").getAttribute("opacity"));
 
 await moveToolTo(P4);
 placeAtP4(); log("Panel stored in P4");
