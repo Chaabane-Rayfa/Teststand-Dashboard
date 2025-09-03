@@ -136,8 +136,7 @@ async function runCycle(){
 show("panelStack", 1);
 show("panelStand", 0);
 show("panelCarry", 0);
-    }
-}
+ 
 // نخلي panelP4 كما هو (باش اللوحات المخزّنة تبقى ظاهرة)
 setRobotAt(0); setSensor(0); refreshLEDs();
 
@@ -179,7 +178,8 @@ setRobotAt(0);
 setSensor(0);
 refreshLEDs();
 
-
+   }
+}
 
   function animateBar(id, duration){
     return new Promise((resolve)=>{
