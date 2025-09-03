@@ -40,40 +40,97 @@
        <circle cx="400" cy="280" r="5" fill="#c0392b"/>   <!-- P3 -->
        <circle cx="250" cy="280" r="5" fill="#2980b9"/>   <!-- P4 -->
 
-        <!-- Robot base -->
-        <g id="robot" transform="translate(400,340)">
-          <rect x="-25" y="5" width="50" height="20" rx="6" fill="#8aa0b8"/>
-          <!-- Link1 -->
-          <g id="link1" transform="rotate(-60)">
-            <rect x="0" y="-10" width="140" height="20" rx="10" fill="#2c3e50"/>
-            <!-- Joint1 -->
-            <circle cx="0" cy="0" r="10" fill="#34495e"/>
-            <!-- Link2 -->
-            <g id="link2" transform="translate(140,0) rotate(40)">
-              <rect x="0" y="-9" width="120" height="18" rx="9" fill="#2c3e50"/>
-              <!-- Joint2 -->
-              <circle cx="0" cy="0" r="9" fill="#34495e"/>
-              <!-- End effector -->
-              <g id="tool" transform="translate(120,0)">
-                <rect x="-10" y="-16" width="20" height="32" rx="4" fill="#7f8c8d"/>
-                <!-- Gripper fingers -->
-                <rect id="fingerL" x="-16" y="-3" width="8" height="6" rx="2" fill="#95a5a6"/>
-                <rect id="fingerR" x="8" y="-3" width="8" height="6" rx="2" fill="#95a5a6"/>
-                <!-- Carried panel -->
-                <rect id="panelCarry" x="-18" y="-6" width="36" height="12" rx="2" fill="#2ecc71" opacity="0"/>
-              </g>
-            </g>
-          </g>
+      <!-- ===== Robot (fancy 2D) ===== -->
+<!-- Gradients & filters -->
+<defs>
+  <!-- معدن غامق -->
+  <linearGradient id="armMetal" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"  stop-color="#0e1722"/>
+    <stop offset="0.5" stop-color="#223041"/>
+    <stop offset="1"  stop-color="#0c131b"/>
+  </linearGradient>
+  <!-- لمعة جانبية -->
+  <linearGradient id="armEdge" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="rgba(255,255,255,.25)"/>
+    <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+  </linearGradient>
+  <!-- معدن فاتح للـgripper -->
+  <linearGradient id="gripMetal" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0"  stop-color="#7b8da0"/>
+    <stop offset="1"  stop-color="#9fb0c2"/>
+  </linearGradient>
+  <!-- ظل خفيف -->
+  <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".35"/>
+  </filter>
+  <!-- توهج أخضر خفيف للأضواء -->
+  <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="2" result="b"/>
+    <feMerge>
+      <feMergeNode in="b"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
+
+<!-- Robot base -->
+<g id="robot" transform="translate(400,340)">
+  <!-- قاعدة على الأرض -->
+  <g filter="url(#softShadow)">
+    <rect x="-32" y="6" width="64" height="22" rx="8" fill="#3a4b61"/>
+    <rect x="-22" y="0" width="44" height="18" rx="8" fill="#253447"/>
+  </g>
+
+  <!-- ===== Link1 ===== -->
+  <g id="link1" transform="rotate(-60)">
+    <!-- جسم الرابط -->
+    <g filter="url(#softShadow)">
+      <rect x="0" y="-13" width="140" height="26" rx="13" fill="url(#armMetal)"/>
+      <!-- لمعة علوية -->
+      <rect x="0" y="-13" width="140" height="10" rx="10" fill="url(#armEdge)" opacity=".35"/>
+    </g>
+    <!-- مفصل1 -->
+    <g>
+      <circle cx="0" cy="0" r="13" fill="#0e1722" stroke="#3a4b61" stroke-width="3"/>
+      <circle cx="0" cy="0" r="5"  fill="#7a90a8"/>
+    </g>
+
+    <!-- ===== Link2 ===== -->
+    <g id="link2" transform="translate(140,0) rotate(40)">
+      <g filter="url(#softShadow)">
+        <rect x="0" y="-11" width="120" height="22" rx="11" fill="url(#armMetal)"/>
+        <rect x="0" y="-11" width="120" height="8"  rx="8"  fill="url(#armEdge)" opacity=".35"/>
+      </g>
+      <!-- مفصل2 -->
+      <g>
+        <circle cx="0" cy="0" r="11" fill="#0e1722" stroke="#3a4b61" stroke-width="3"/>
+        <circle cx="0" cy="0" r="4"  fill="#7a90a8"/>
+      </g>
+
+      <!-- ===== End Effector / Tool ===== -->
+      <g id="tool" transform="translate(120,0)">
+        <!-- جسم الماسك -->
+        <g filter="url(#softShadow)">
+          <rect x="-12" y="-18" width="24" height="36" rx="6" fill="url(#gripMetal)" stroke="#6b7c8e" stroke-width="1.5"/>
+          <!-- براغي صغيرة -->
+          <circle cx="-6" cy="-10" r="1.4" fill="#4a5b6b"/>
+          <circle cx=" 6" cy="-10" r="1.4" fill="#4a5b6b"/>
+          <circle cx="-6" cy=" 10" r="1.4" fill="#4a5b6b"/>
+          <circle cx=" 6" cy=" 10" r="1.4" fill="#4a5b6b"/>
         </g>
-      </svg>
-    </div>
-    <div class="legend">
-      <span class="badge"><span class="dot dot-pick"></span> P1 Pick</span>
-      <span class="badge"><span class="dot dot-over"></span> P2 Over Stand</span>
-      <span class="badge"><span class="dot dot-place"></span> P3 Place</span>
-      <span class="badge">Link lengths: L1=140, L2=120 (sim)</span>
-    </div>
-  </div>
+
+        <!-- أصابع الماسك (نفس الـIDs حتى يفضل JS يخدم) -->
+        <rect id="fingerL" x="-18" y="-4" width="8" height="8" rx="2" fill="#9fb0c2" stroke="#6b7c8e" stroke-width="1"/>
+        <rect id="fingerR" x="10"  y="-4" width="8" height="8" rx="2" fill="#9fb0c2" stroke="#6b7c8e" stroke-width="1"/>
+
+        <!-- اللوحة المحمولة (نفس ID) -->
+        <rect id="panelCarry" x="-20" y="-6" width="40" height="12" rx="2" fill="#20e3b2" opacity="0" filter="url(#softGlow)"/>
+      </g>
+    </g>
+  </g>
+</g>
+<!-- ===== end robot ===== -->
+
 
   <!-- RIGHT: Controls + LEDs -->
   <div class="card">
