@@ -75,7 +75,32 @@ document.addEventListener('DOMContentLoaded', () => {
       res();
     });
   }
-
+function pickFromStack(){
+  // إغلاق الجريبر + نقل اللوحة من الستاك إلى الكرّي
+  $("fingerL").setAttribute("x", -14);
+  $("fingerR").setAttribute("x",  6);
+  $("panelStack").setAttribute("opacity", 0);
+  $("panelCarry").setAttribute("opacity", 1);
+}
+function placeOnStand(){
+  $("fingerL").setAttribute("x", -16);
+  $("fingerR").setAttribute("x",  8);
+  $("panelCarry").setAttribute("opacity", 0);
+  $("panelStand").setAttribute("opacity", 1);
+}
+function pickFromStand(){
+  // مهم: نخفي panelStand باش ما يبقاش ظاهر
+  $("fingerL").setAttribute("x", -14);
+  $("fingerR").setAttribute("x",  6);
+  $("panelStand").setAttribute("opacity", 0);
+  $("panelCarry").setAttribute("opacity", 1);
+}
+function placeAtP4(){
+  $("fingerL").setAttribute("x", -16);
+  $("fingerR").setAttribute("x",  8);
+  $("panelCarry").setAttribute("opacity", 0);
+  $("panelP4").setAttribute("opacity", 1);
+}
   function grip(close){
     // أصابع الماسك
     $("fingerL").setAttribute("x", close? -14 : -16);
