@@ -99,15 +99,20 @@ main{
   box-shadow: inset 0 0 50px rgba(0,0,0,.5), 0 12px 36px rgba(0,0,0,.6);
 }
 .card--log h2{
-  color:#eef6ff;
-  letter-spacing:.3px;
-  font-weight:800;
+  font-size:20px;          /* أكبر من قبل */
+  font-weight:800;         /* أثقل */
+  color:#f0f6ff;           /* أفتح باش يبان */
+  letter-spacing:.4px;     /* مسافة صغيرة بين الحروف */
+  margin-bottom:14px;
+  text-shadow:0 2px 6px rgba(0,0,0,.5); /* Glow خفيف يوضح النص */
   display:flex; align-items:center; gap:8px;
 }
 .card--log h2::before{
   content:"";
-  width:8px; height:8px; border-radius:50%;
-  background:#3aa0ff; box-shadow:0 0 10px #3aa0ff;
+  width:10px; height:10px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#3aa0ff,#20e3b2);
+  box-shadow:0 0 8px rgba(58,160,255,.8), 0 0 12px rgba(32,227,178,.6);
 }
 
 /* Controls & buttons */
@@ -123,9 +128,9 @@ button:hover{ filter: saturate(1.15) brightness(1.05); }
 button:active{ transform: translateY(1px); }
 
 .btn-robot{  background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); }
-.btn-sensor{ background: linear-gradient(135deg,#ffaf45,var(--btn-orange)); }
-.btn-auto{   background: linear-gradient(135deg,#26e6c9,var(--btn-green)); }
-.btn-stop{   background: linear-gradient(135deg,var(--red),#ef4444); }
+.btn-sensor{ background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); }
+.btn-auto{   background: linear-gradient(135deg,#0B6E4F,var(--btn-green)); }
+.btn-stop{   background: linear-gradient(135deg,var(--red),#800000); }
 .btn-robot.active, .btn-sensor.active{
   box-shadow: 0 0 0 2px rgba(255,255,255,.15) inset, 0 0 16px rgba(58,160,255,.35);
 }
