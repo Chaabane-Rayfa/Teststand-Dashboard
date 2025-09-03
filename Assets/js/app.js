@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Kinematics & movement ---
   const base = {x:250, y:340};
   const L1 = 140, L2 = 120;
-  const P1 = {x:170, y:280}, P2 = {x:520, y:220}, P3 = {x:600, y:255};
+  const P1 = {x:170, y:280}, P2 = {x:520, y:220}, P3 = {x:600, y:255}, P4 = {x:700, y:300};
 
   function ik(x,y){
     const dx=x-base.x, dy=y-base.y;
@@ -92,38 +92,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function runCycle(){
-    log("Auto cycle started","log-other");
-    fill("bar_flash",0); fill("bar_test",0);
-    setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
+async function runCycle(){
+  for (let i = 0; i < 50; i++) {
+    if (stopFlag) break;
+    log(`Cycle ${i+1} started`,"log-other");
 
-    // وضع البداية:
-    // - اللوحة مرئية فوق P1 (panelStack)
-    // - الستاند فاضي (panelStand مخفية)
-    // - الماسك فاضي (panelCarry مخفية)
+    // Reset state
     $("panelStack").setAttribute("opacity", 1);
     $("panelStand").setAttribute("opacity", 0);
     $("panelCarry").setAttribute("opacity", 0);
+    setRobotAt(0); setSensor(0); refreshLEDs();
 
-    // الإشارات في البداية: موش جاهز و Sensor=0
-    setRobotAt(0);
-    setSensor(0);
-    refreshLEDs();
-
+    // Pick from P1
     await moveToolTo(P1);
-    grip(true); log("Gripper CLOSE (pick panel)");
-    setSensor(0);
-    setRobotAt(0);
-    refreshLEDs();
+    grip(true); log("Pick panel from P1");
+    await sleep(300);
 
-    await moveToolTo(P2); log("Move over stand","log-other");
-    await moveToolTo(P3); log("Arrived at place","log-other");
+    // Move over stand
+    await moveToolTo(P2);
+    await moveToolTo(P3);
 
-    grip(false); log("Gripper OPEN (place panel)");
-    setSensor(1);
-    setRobotAt(1);
-    refreshLEDs();
+    // Place on stand
+    grip(false); log("Place panel on stand");
+    setSensor(1); setRobotAt(1); refreshLEDs();
 
+    // Flash + Test
     setLed("led_flash","busy"); log("Flashing started","log-flash");
     await animateBar("bar_flash",1200);
     setLed("led_flash","on"); log("Flashing done","log-flash");
@@ -132,16 +125,25 @@ document.addEventListener('DOMContentLoaded', () => {
     await animateBar("bar_test",1500);
     setLed("led_test","on"); log("Testing done","log-test");
 
+    // ACK
     setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
     await sleep(800);
     setLed("led_ack",""); log("ACK OFF","log-ack");
 
-    // الروبوت يطيّح DO بعد الـACK
-    setRobotAt(0);
-    // Sensor يبقى 1 لأن اللوحة بقيت على الستاند
-    refreshLEDs();
-    log("Auto cycle finished","log-other");
+    // بعد ما يكمل التست: Pick panel من الـStand
+    await moveToolTo(P3);
+    grip(true); log("Pick panel from stand (after test)");
+
+    // Place in P4
+    await moveToolTo(P4);
+    grip(false); log("Panel stored in P4");
+
+    log(`Cycle ${i+1} finished`,"log-other");
+    await sleep(500); // فاصل صغير قبل اللي بعدو
   }
+  log("All cycles finished or stopped","log-other");
+}
+
 
   function animateBar(id, duration){
     return new Promise((resolve)=>{
