@@ -18,30 +18,30 @@
       <svg id="svg" viewBox="0 0 800 450" width="100%" height="100%">
         <!-- Floor -->
         <rect x="0" y="350" width="800" height="100" fill="#e8edf5"/>
-        <!-- Teststand -->
-        <rect x="520" y="280" width="200" height="70" rx="8" fill="#ccd9ea" stroke="#9cb5d6"/>
-        <rect x="560" y="260" width="120" height="20" rx="4" fill="#b7c8e1"/>
+        <!-- Teststand (centered) -->
+        <rect x="300" y="280" width="200" height="70" rx="8" fill="#ccd9ea" stroke="#9cb5d6"/>
+        <rect x="340" y="260" width="120" height="20" rx="4" fill="#b7c8e1"/>
         <!-- Panel on stand (target) -->
         <!-- Panel at P1 (stack) - visible at start -->
-        <rect id="panelStack" x="752" y="274" width="36" height="12" rx="2" fill="#2ecc71" opacity="1"/>
+        <rect id="panelStack" x="532" y="274" width="36" height="12" rx="2" fill="#2ecc71" opacity="1"/>
         <!-- Panel at P3 (on stand) - hidden at start -->
-        <rect id="panelStand" x="590" y="274" width="60" height="12" rx="2" fill="#2ecc71" opacity="0"/>
-        <!-- Pick area (stack) -->
-        <rect x="730" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
-        <rect x="740" y="280" width="60" height="16" rx="3" fill="#bfcde2"/>
-        <!-- Drop-off area P4 -->
-        <rect x="430" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
-        <rect x="440" y="290" width="60" height="16" rx="3" fill="#bfcde2"/>
+        <rect id="panelStand" x="370" y="274" width="60" height="12" rx="2" fill="#2ecc71" opacity="0"/>
+        <!-- Pick area (stack) at P1 (right) -->
+        <rect x="510" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
+        <rect x="520" y="280" width="60" height="16" rx="3" fill="#bfcde2"/>
+        <!-- Drop-off area P4 (left) -->
+        <rect x="210" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
+        <rect x="220" y="290" width="60" height="16" rx="3" fill="#bfcde2"/>
         <!-- Panel at P4 (hidden at start) -->
-        <rect id="panelP4" x="452" y="292" width="36" height="12" rx="2" fill="#2ecc71" opacity="0"/>
+        <rect id="panelP4" x="232" y="292" width="36" height="12" rx="2" fill="#2ecc71" opacity="0"/>
         <!-- Markers -->
-        <circle cx="770" cy="280" r="5" fill="#8e44ad"/>   <!-- P1 -->
-        <circle cx="620" cy="240" r="5" fill="#16a085"/>   <!-- P2 -->
-        <circle cx="620" cy="280" r="5" fill="#c0392b"/>   <!-- P3 -->
-        <circle cx="470" cy="280" r="5" fill="#2980b9"/>   <!-- P4 -->
+       <circle cx="550" cy="280" r="5" fill="#8e44ad"/>   <!-- P1 -->
+       <circle cx="400" cy="240" r="5" fill="#16a085"/>   <!-- P2 -->
+       <circle cx="400" cy="280" r="5" fill="#c0392b"/>   <!-- P3 -->
+       <circle cx="250" cy="280" r="5" fill="#2980b9"/>   <!-- P4 -->
 
         <!-- Robot base -->
-        <g id="robot" transform="translate(620,340)">
+        <g id="robot" transform="translate(400,340)">
           <rect x="-25" y="5" width="50" height="20" rx="6" fill="#8aa0b8"/>
           <!-- Link1 -->
           <g id="link1" transform="rotate(-60)">
