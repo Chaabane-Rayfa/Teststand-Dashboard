@@ -11,7 +11,7 @@
 
 <main>
   <!-- LEFT: Scene -->
-  <div class="card scene-card">
+<div class="card scene-card card--robot">
     <h2>Robot & Teststand (Simulation)</h2>
     <div class="scene-wrap">
       <!-- Scalable SVG workspace -->
@@ -145,8 +145,16 @@
   </div>                <!-- يسكّر .card.scene-card -->
 
   <!-- RIGHT: Controls + LEDs -->
-  <div class="card">
+<div class="card card--controls">
     <h2>Controls</h2>
+  
+    <!-- عدّاد السيكلز + الحالة -->
+  <div class="legend" style="margin-bottom:8px">
+    <span class="badge"><strong>Cycles:</strong>&nbsp;<span id="cyclesDone">0</span></span>
+    <span class="badge"><strong>Current:</strong>&nbsp;<span id="currentCycle">1</span></span>
+    <span class="badge"><strong>Step:</strong>&nbsp;<span id="stepLabel">Idle</span></span>
+  </div>
+  
     <div class="controls">
       <button id="btnRobot"  class="btn-robot"  type="button">RobotAt = 0</button>
       <button id="btnSensor" class="btn-sensor" type="button">Sensor = 0</button>
