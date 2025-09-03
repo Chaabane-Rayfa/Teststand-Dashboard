@@ -125,3 +125,102 @@ button:active{ transform: translateY(1px) }
 /* لمسة نيون خضراء على P3 marker */
 #svg circle[fill="#c0392b"]{ fill:#ff6b6b; filter:url(#softGlow); }
 
+/* === Futuristic background (layered gradients + grid) === */
+body{
+  background:
+    radial-gradient(1200px 600px at 75% -10%, rgba(58,160,255,.20), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(32,227,178,.18), transparent 60%),
+    linear-gradient(135deg, #0b1020 0%, #0a1527 45%, #0b1322 100%) !important;
+}
+
+/* animated subtle grid overlay */
+body::before{
+  content:"";
+  position:fixed; inset:0; pointer-events:none;
+  background:
+    linear-gradient(transparent 96%, rgba(255,255,255,.06) 96%) 0 0/100% 22px,
+    linear-gradient(90deg, transparent 96%, rgba(255,255,255,.06) 96%) 0 0/22px 100%;
+  opacity:.05;
+}
+
+/* vignette to focus scene */
+body::after{
+  content:"";
+  position:fixed; inset:0; pointer-events:none;
+  background:radial-gradient(1100px 500px at 50% 20%, transparent 60%, rgba(0,0,0,.45) 100%);
+}
+/* Glassmorphism + gradient border */
+.card{
+  background: rgba(20, 28, 44, .72) !important;
+  backdrop-filter: blur(12px);
+  border-radius:16px; position:relative; overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+}
+.card::before{
+  content:"";
+  position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  padding:1px; /* gradient border thickness */
+  background: linear-gradient(135deg, rgba(58,160,255,.55), rgba(32,227,178,.55));
+  -webkit-mask: 
+    linear-gradient(#000 0 0) content-box, 
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity:.55;
+}
+
+button{
+  border:0; color:#eaf2ff; font-weight:700; letter-spacing:.2px;
+  border-radius:12px; padding:10px 16px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.35);
+  transition: transform .08s, box-shadow .2s, filter .2s;
+}
+button:active{ transform: translateY(1px); }
+
+.btn-robot{  background: linear-gradient(135deg,#3b82f6,#2563eb); }
+.btn-sensor{ background: linear-gradient(135deg,#ffaf45,#f59e0b); }
+.btn-auto{   background: linear-gradient(135deg,#26e6c9,#10b981); }
+.btn-stop{   background: linear-gradient(135deg,#ff6b6b,#ef4444); }
+
+button:hover{ filter: saturate(1.15) brightness(1.05); }
+.btn-robot.active, .btn-sensor.active{ box-shadow: 0 0 0 2px rgba(255,255,255,.15) inset, 0 0 16px rgba(58,160,255,.35); }
+.scene-wrap{
+  background:
+    radial-gradient(600px 300px at 60% 10%, rgba(32,227,178,.10), transparent 60%),
+    radial-gradient(520px 260px at 25% 25%, rgba(58,160,255,.09), transparent 60%),
+    linear-gradient(180deg,#0c1422,#0a1118) !important;
+  border:1px solid rgba(255,255,255,.06); border-radius:12px; overflow:hidden;
+}
+
+/* تغميق ألوان الـSVG الافتراضية */
+#svg rect[fill="#e8edf5"]{ fill:#0e1622 !important; }  /* الأرضية */
+#svg rect[fill="#ccd9ea"]{ fill:#223041 !important; stroke:#2f4561 !important; }
+#svg rect[fill="#b7c8e1"]{ fill:#2b3b52 !important; }
+#svg rect[fill="#bfcde2"]{ fill:#30445e !important; }
+#svg rect[fill="#dfe6ee"]{ fill:#1e2835 !important; stroke:#29384d !important; }
+
+/* ماركرز نيون */
+#svg circle[fill="#8e44ad"]{ fill:#b084ff !important; }
+#svg circle[fill="#16a085"]{ fill:#26e6c9 !important; }
+#svg circle[fill="#c0392b"]{ fill:#ff6b6b !important; }
+.progress{
+  height:14px; border-radius:10px; overflow:hidden;
+  background: linear-gradient(180deg,#0f1725,#0b111a);
+  border:1px solid rgba(255,255,255,.06);
+}
+.bar{
+  background:linear-gradient(90deg,#26e6c9,#3aa0ff);
+  box-shadow:0 0 18px rgba(32,227,178,.35);
+}
+.led{
+  width:20px;height:20px;border-radius:50%;
+  background:#233243; box-shadow: inset 0 0 6px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
+}
+.led.on{ background:#17e3b2; box-shadow:0 0 12px #17e3b2, 0 0 0 1px #1a2; }
+.led.busy{ background:#f7c948; box-shadow:0 0 12px #f7c948, 0 0 0 1px #663; }
+.led.fail{ background:#ff6b6b; box-shadow:0 0 12px #ff6b6b, 0 0 0 1px #622; }
+.scene-wrap::after{
+  content:"";
+  position:absolute; inset:0; pointer-events:none;
+  background: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px) 0 0/100% 24px;
+  mix-blend-mode: overlay; opacity:.15;
+}
