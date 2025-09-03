@@ -224,3 +224,19 @@ button:hover{ filter: saturate(1.15) brightness(1.05); }
   background: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px) 0 0/100% 24px;
   mix-blend-mode: overlay; opacity:.15;
 }
+.legend {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  margin-top: 8px;
+  color: var(--muted);
+}
+.dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot-pick  { background:#8e44ad; }
+.dot-over  { background:#16a085; }
+.dot-place { background:#c0392b; }
+.dot-store { background:#2980b9; }
