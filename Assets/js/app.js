@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $("btnStop").onclick = ()=>{ stopFlag=true; log("STOP requested","log-other"); };
 
   // --- Kinematics & movement ---
-  const base = {x:250, y:340};
+  const base = {x:360, y:340};
   const L1 = 140, L2 = 120;
   const P1 = {x:170, y:280}, P2 = {x:520, y:220}, P3 = {x:600, y:255}, P4 = {x:700, y:300};
 
