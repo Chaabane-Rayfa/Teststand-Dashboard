@@ -80,31 +80,34 @@ const P4 = { x: 250, y: 280 };   // يسار الستاند
       res();
     });
   }
+const show = (id, on) => $(id).setAttribute("opacity", on ? 1 : 0);
+
 function pickFromStack(){
-  // إغلاق الجريبر + نقل اللوحة من الستاك إلى الكرّي
   $("fingerL").setAttribute("x", -14);
   $("fingerR").setAttribute("x",  6);
-  $("panelStack").setAttribute("opacity", 0);
-  $("panelCarry").setAttribute("opacity", 1);
+  show("panelStack", 0);
+  show("panelCarry", 1);
 }
+
 function placeOnStand(){
   $("fingerL").setAttribute("x", -16);
   $("fingerR").setAttribute("x",  8);
-  $("panelCarry").setAttribute("opacity", 0);
-  $("panelStand").setAttribute("opacity", 1);
+  show("panelCarry", 0);
+  show("panelStand", 1);
 }
+
 function pickFromStand(){
-  // مهم: نخفي panelStand باش ما يبقاش ظاهر
   $("fingerL").setAttribute("x", -14);
   $("fingerR").setAttribute("x",  6);
-  $("panelStand").setAttribute("opacity", 0);
-  $("panelCarry").setAttribute("opacity", 1);
+  show("panelStand", 0);   // ← مهم: نخفي لوحة الستاند
+  show("panelCarry", 1);
 }
+
 function placeAtP4(){
   $("fingerL").setAttribute("x", -16);
   $("fingerR").setAttribute("x",  8);
-  $("panelCarry").setAttribute("opacity", 0);
-  $("panelP4").setAttribute("opacity", 1);
+  show("panelCarry", 0);
+  show("panelP4", 1);
 }
   function grip(close){
     // أصابع الماسك
@@ -123,56 +126,55 @@ function placeAtP4(){
   }
 
 async function runCycle(){
+  
   for (let i = 0; i < 50; i++) {
     if (stopFlag) break;
     log(`Cycle ${i+1} started`,"log-other");
 
     // Reset state
-    $("panelStack").setAttribute("opacity", 1);
-    $("panelStand").setAttribute("opacity", 0);
-    $("panelCarry").setAttribute("opacity", 0);
-    setRobotAt(0); setSensor(0); refreshLEDs();
+show("panelStack", 1);
+show("panelStand", 0);
+show("panelCarry", 0);
+// نخلي panelP4 كما هو (باش اللوحات المخزّنة تبقى ظاهرة)
+setRobotAt(0); setSensor(0); refreshLEDs();
 
-    // Pick from P1
-    await moveToolTo(P1);
-    grip(true); log("Pick panel from P1");
-    await sleep(300);
+   // Pick من P1
+await moveToolTo(P1);
+pickFromStack(); log("Pick panel from P1");
+await sleep(300);
 
-    // Move over stand
-    await moveToolTo(P2);
-    await moveToolTo(P3);
+// Move over stand → place على الستاند
+await moveToolTo(P2);
+await moveToolTo(P3);
+placeOnStand(); log("Place panel on stand");
+setSensor(1); setRobotAt(1); refreshLEDs();
 
-    // Place on stand
-    grip(false); log("Place panel on stand");
-    setSensor(1); setRobotAt(1); refreshLEDs();
+// Flash + Test (تبقى كيف ما هي)
+setLed("led_flash","busy"); log("Flashing started","log-flash");
+await animateBar("bar_flash",1200);
+setLed("led_flash","on"); log("Flashing done","log-flash");
 
-    // Flash + Test
-    setLed("led_flash","busy"); log("Flashing started","log-flash");
-    await animateBar("bar_flash",1200);
-    setLed("led_flash","on"); log("Flashing done","log-flash");
+setLed("led_test","busy"); log("Testing started","log-test");
+await animateBar("bar_test",1500);
+setLed("led_test","on"); log("Testing done","log-test");
 
-    setLed("led_test","busy"); log("Testing started","log-test");
-    await animateBar("bar_test",1500);
-    setLed("led_test","on"); log("Testing done","log-test");
+// ACK
+setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
+await sleep(800);
+setLed("led_ack",""); log("ACK OFF","log-ack");
 
-    // ACK
-    setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
-    await sleep(800);
-    setLed("led_ack",""); log("ACK OFF","log-ack");
+// نشيل من الستاند → نخزّن في P4
+await moveToolTo(P3);
+pickFromStand(); log("Pick panel from stand (after test)");
 
-    // بعد ما يكمل التست: Pick panel من الـStand
-    await moveToolTo(P3);
-    grip(true); log("Pick panel from stand (after test)");
+await moveToolTo(P4);
+placeAtP4(); log("Panel stored in P4");
 
-    // Place in P4
-    await moveToolTo(P4);
-    grip(false); log("Panel stored in P4");
+// إشارات للدورة القادمة
+setRobotAt(0);
+setSensor(0);
+refreshLEDs();
 
-    log(`Cycle ${i+1} finished`,"log-other");
-    await sleep(500); // فاصل صغير قبل اللي بعدو
-  }
-  log("All cycles finished or stopped","log-other");
-}
 
 
   function animateBar(id, duration){
