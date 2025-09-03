@@ -9,13 +9,10 @@
 }
 *{box-sizing:border-box}
 body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Arial, sans-serif;
-  background:
-    radial-gradient(1200px 600px at 120% -10%, #1a2330 0%, transparent 60%),
-    radial-gradient(900px 500px at -20% 110%, #0c121a 0%, transparent 60%),
-    var(--bg) !important;
-  color:var(--text);
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg, #0a0f1e, #141b2d);
+  color: var(--text);
 }
 header{
   background:linear-gradient(180deg,#0d141c 0%, #0a1118 100%) !important;
@@ -26,10 +23,17 @@ main{display:grid;grid-template-columns:1.1fr 0.9fr;gap:20px;align-items:start;p
 @media(max-width:1024px){ main{grid-template-columns:1fr} }
 
 .card{
-  background:linear-gradient(180deg, rgba(23,31,40,.96), rgba(17,24,33,.96));
-  border:1px solid var(--border); border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.02) inset;
-  padding:18px;
+ background: var(--card);
+  border-radius: 18px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.7);
 }
 h2{margin:0 0 12px 0; font-size:18px; font-weight:700; color:#e9eef7}
 
@@ -110,3 +114,14 @@ button:active{ transform: translateY(1px) }
 }
 .dot{width:10px;height:10px;border-radius:50%}
 .dot-pick{background:#b084ff}.dot-over{background:#26e6c9}.dot-place{background:#ff6b6b}
+/* خلفية تِكّية خفيفة */
+.scene-wrap{
+  background:
+    radial-gradient(600px 300px at 60% 10%, rgba(32,227,178,.07), transparent 60%),
+    radial-gradient(500px 260px at 20% 20%, rgba(58,160,255,.06), transparent 60%),
+    linear-gradient(180deg,#0b121a,#0a1118);
+}
+
+/* لمسة نيون خضراء على P3 marker */
+#svg circle[fill="#c0392b"]{ fill:#ff6b6b; filter:url(#softGlow); }
+
