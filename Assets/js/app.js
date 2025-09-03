@@ -178,8 +178,6 @@ setRobotAt(0);
 setSensor(0);
 refreshLEDs();
 
-   }
-}
 
   function animateBar(id, duration){
     return new Promise((resolve)=>{
