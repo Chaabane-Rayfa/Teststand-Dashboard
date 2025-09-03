@@ -1,22 +1,61 @@
 document.addEventListener('DOMContentLoaded', () => {
   /* ---------- State / UI helpers ---------- */
-  let robotAt = 0, sensor = 0, busy = false, auto = false, stopFlag = false;
+  let robotAt = 0, sensor = 0, busy = false;
+  let auto = false;            // running flag
+  let stopFlag = false;        // pause request
   let prevReady = false;
+
+  // Cycle tracking
+  let stepIdx = 0;             // داخل نفس الدورة (cycle): 0..7
+  let cyclesDone = 0;          // عدد الدورات المكتملة
+  let currentCycle = 1;        // رقم الدورة الحالية (human-readable)
+
+  // Progress resumable state
+  let flashRemain = null;      // ms remaining for flashing
+  let testRemain  = null;      // ms remaining for testing
+
+  const FLASH_TOTAL = 1200;    // ms
+  const TEST_TOTAL  = 1500;    // ms
 
   const $ = (id) => document.getElementById(id);
   const setLed = (id, cls) => { $(id).className = "led " + (cls || ""); };
-  const log = (msg, cls = "log-other") => {
-    const t = new Date().toLocaleTimeString();
-    $("log").innerHTML = `<div class="${cls}">[${t}] ${msg}</div>` + $("log").innerHTML;
-  };
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const fill = (id, v) => { $(id).style.width = v + "%"; };
+
+  // ensure counters UI (created if missing)
+  ensureCountersUI();
+
+  function log(msg, cls = "log-other") {
+    const t = new Date().toLocaleTimeString();
+    $("log").innerHTML = `<div class="${cls}">[${t}] ${msg}</div>` + $("log").innerHTML;
+  }
+
+  function refreshCountersUI() {
+    const cd = $('cyclesDone'), cc = $('currentCycle'), sl = $('stepLabel');
+    if (cd) cd.textContent = String(cyclesDone);
+    if (cc) cc.textContent = String(currentCycle);
+    if (sl) sl.textContent = stepName(stepIdx);
+  }
+
+  function stepName(i){
+    return [
+      "Move → P1 (Pick)",
+      "Move → P2 (Over Stand)",
+      "Place @P3",
+      "Flashing…",
+      "Testing…",
+      "ACK → Robot",
+      "Move → P4 (Store)",
+      "Return → P1"
+    ][i] || "Idle";
+  }
 
   function refreshLEDs() {
     setLed("led_robot", robotAt ? "on" : "");
     setLed("led_sensor", sensor ? "on" : "");
     const ready = robotAt && sensor;
     setLed("led_ready", ready ? "on" : "");
+    // trigger manual ready sequence (unchanged behavior)
     if (ready && !prevReady && !busy && !auto) processReadyCycle();
     prevReady = ready;
   }
@@ -29,11 +68,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (auto) return;
     auto = true; stopFlag = false;
     $("btnAuto").disabled = true; $("btnStop").disabled = false;
-    try { await runCycle(); }
-    finally { auto = false; $("btnAuto").disabled = false; $("btnStop").disabled = true; }
+    $("btnAuto").textContent = stepIdx === 0 ? "Running…" : "Resuming…";
+    try { await runCyclesWithResume(); }
+    finally {
+      auto = false;
+      $("btnAuto").disabled = false;
+      $("btnStop").disabled = true;
+      $("btnAuto").textContent = "Run";
+    }
   };
 
-  $("btnStop").onclick = () => { stopFlag = true; log("STOP requested", "log-other"); };
+  $("btnStop").onclick = () => {
+    if (!auto) return;
+    stopFlag = true;
+    log("STOP (pause) requested — will hold at a safe point", "log-other");
+  };
 
   // --- Kinematics & movement ---
   const base = { x: 400, y: 340 };
@@ -69,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const { th1: cur1, th2: cur2 } = getCurrentAngles();
       const { th1: t1, th2: t2 } = ik(pt.x, pt.y);
       for (let i = 1; i <= steps; i++) {
-        if (stopFlag) break;
+        if (stopFlag) break;                     // allow pause amid motion
         const a1 = cur1 + (t1 - cur1) * i / steps;
         const a2 = cur2 + (t2 - cur2) * i / steps;
         setJoints(a1, a2);
@@ -97,94 +146,201 @@ document.addEventListener('DOMContentLoaded', () => {
   function setPanel(loc, note="") {
     panelLoc = loc; renderPanelVisibility();
     log(`PANEL -> ${loc} ${note ? "(" + note + ")" : ""}`);
-    console.log("PANEL ->", loc, note);
   }
   function pickFromStack(){ clamp(true);  setPanel("carry", "pick P1"); }
   function placeOnStand(){  clamp(false); setPanel("stand", "place P3"); }
   function pickFromStand(){ clamp(true);  setPanel("carry", "pick P3"); }
   function placeAtP4(){     clamp(false); setPanel("p4",   "place P4"); }
 
-  /* -------- Auto cycle (50 loops) -------- */
-  async function runCycle() {
-    for (let i = 0; i < 50; i++) {
-      if (stopFlag) break;
-      log(`Cycle ${i+1} started`, "log-other");
+  /* -------- Resumable progress bars -------- */
+  function animateBarResumable(idBar, idTxt, totalMs, remainMsRef){
+    // remainMsRef: { v: number|null }  (object ref so we can store remaining)
+    if (remainMsRef.v == null) remainMsRef.v = totalMs;         // first time
+    const startRemain = remainMsRef.v;
+    const startedAt = performance.now();
 
-      // Reset this cycle (keep P4 history)
-      setPanel("stack", "cycle start");
-      setRobotAt(0); setSensor(0); refreshLEDs();
-
-      // Pick from P1
-      await moveToolTo(P1);
-      pickFromStack();
-
-      // Move over stand & place
-      await moveToolTo(P2);
-      await moveToolTo(P3);
-      placeOnStand();
-      setSensor(1); setRobotAt(1); refreshLEDs();
-
-      // Flash + Test
-      setLed("led_flash","busy"); log("Flashing started","log-flash");
-      await animateBar("bar_flash", 1200);
-      setLed("led_flash","on"); log("Flashing done","log-flash");
-
-      setLed("led_test","busy"); log("Testing started","log-test");
-      await animateBar("bar_test", 1500);
-      setLed("led_test","on"); log("Testing done","log-test");
-
-      // ACK
-      setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
-      await sleep(600);
-      setLed("led_ack",""); log("ACK OFF","log-ack");
-
-      // Pick from stand → place at P4
-      await moveToolTo(P3);
-      pickFromStand(); // hides panelStand, shows carry
-
-      await moveToolTo(P4);
-      placeAtP4();     // shows panelP4, ensures stand hidden
-
-      // Prepare next cycle
-      setRobotAt(0); setSensor(0); refreshLEDs();
-      log(`Cycle ${i+1} finished`, "log-other");
-      await sleep(300);
-    }
-    log("All cycles finished or stopped", "log-other");
-  }
-
-  /* -------- Other helpers -------- */
-  function animateBar(id, duration){
     return new Promise((resolve)=>{
-      const start = performance.now();
       (function step(now){
-        const p = Math.min(1, (now - start) / duration);
-        $(id).style.width = (p*100) + "%";
-        if (id === "bar_flash") $("txt_flash").textContent = Math.round(p*100) + "%";
-        if (id === "bar_test")  $("txt_test").textContent  = Math.round(p*100) + "%";
-        if (stopFlag || p >= 1) return resolve();
+        if (stopFlag){
+          // compute remaining and stop
+          const elapsed = now - startedAt;
+          const remain = Math.max(0, startRemain - elapsed);
+          remainMsRef.v = remain;
+          // keep bar at current progress
+          const p = (totalMs - remain) / totalMs;
+          $(idBar).style.width = (p*100) + "%";
+          if (idTxt) $(idTxt).textContent = Math.round(p*100) + "%";
+          return resolve('paused');
+        }
+        const elapsed = now - startedAt;
+        const remain = Math.max(0, startRemain - elapsed);
+        const p = (totalMs - remain) / totalMs;
+        $(idBar).style.width = (p*100) + "%";
+        if (idTxt) $(idTxt).textContent = Math.round(p*100) + "%";
+
+        if (remain <= 0){
+          remainMsRef.v = null; // finished
+          return resolve('ok');
+        }
         requestAnimationFrame(step);
-      })(start);
+      })(startedAt);
     });
   }
 
+  /* -------- Steps of one cycle (resumable) -------- */
+  async function runStep(i){
+    switch(i){
+      case 0: // Move to P1 & pick
+        await moveToolTo(P1);
+        if (stopFlag) return 'paused';
+        pickFromStack();
+        setRobotAt(0); setSensor(0); refreshLEDs();
+        return 'ok';
+
+      case 1: // Move to P2
+        await moveToolTo(P2);
+        if (stopFlag) return 'paused';
+        return 'ok';
+
+      case 2: // Move to P3 & place
+        await moveToolTo(P3);
+        if (stopFlag) return 'paused';
+        placeOnStand();
+        setSensor(1); setRobotAt(1); refreshLEDs();
+        return 'ok';
+
+      case 3: // Flashing
+        setLed("led_flash","busy"); log("Flashing started","log-flash");
+        const fr = { v: flashRemain };
+        {
+          const r = await animateBarResumable("bar_flash","txt_flash", FLASH_TOTAL, fr);
+          flashRemain = fr.v;
+          if (r === 'paused') return 'paused';
+        }
+        setLed("led_flash","on"); log("Flashing done","log-flash");
+        return 'ok';
+
+      case 4: // Testing
+        setLed("led_test","busy"); log("Testing started","log-test");
+        const tr = { v: testRemain };
+        {
+          const r = await animateBarResumable("bar_test","txt_test", TEST_TOTAL, tr);
+          testRemain = tr.v;
+          if (r === 'paused') return 'paused';
+        }
+        setLed("led_test","on"); log("Testing done","log-test");
+        return 'ok';
+
+      case 5: // ACK
+        setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
+        // make ACK wait resumable-ish: short chunks
+        let ackRemain = 600;
+        while (ackRemain > 0){
+          if (stopFlag) return 'paused';
+          const dt = Math.min(50, ackRemain);
+          await sleep(dt);
+          ackRemain -= dt;
+        }
+        setLed("led_ack",""); log("ACK OFF","log-ack");
+        return 'ok';
+
+      case 6: // Pick from stand → P4
+        await moveToolTo(P3);
+        if (stopFlag) return 'paused';
+        pickFromStand();
+
+        await moveToolTo(P4);
+        if (stopFlag) return 'paused';
+        placeAtP4();
+        return 'ok';
+
+      case 7: // Return to P1, prep next
+        await moveToolTo(P1);
+        if (stopFlag) return 'paused';
+        // prepare for next cycle
+        setRobotAt(0); setSensor(0); refreshLEDs();
+        // reset process leds for next round
+        setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
+        fill("bar_flash",0); $("txt_flash").textContent = "";
+        fill("bar_test",0);  $("txt_test").textContent  = "";
+        flashRemain = null; testRemain = null;
+        log("Cycle complete — ready for next", "log-ack");
+        return 'ok';
+    }
+    return 'ok';
+  }
+
+  async function runCyclesWithResume(){
+    log(`Run pressed — Cycle ${currentCycle}, Step ${stepIdx}`, "log-ack");
+    refreshCountersUI();
+
+    // IMPORTANT: ما نعملوش Reset للـpanel في بداية كل Cycle، بش نحافظو على الحالة وقت الـPause.
+    // لو حاب تعاود من جديد فعلا، اعمل Reset يدوي (تقدر تزيد زر إن حبيت).
+
+    try{
+      // loop إلى أن يصير Pause أو يكمل ستبس الدورة (ثم يبدأ اللي بعدها)
+      mainLoop:
+      while(!stopFlag){
+        // نفّذ الستيب الحالي
+        const r = await runStep(stepIdx);
+        if (r === 'paused') break; // خرج بالـPause، نحافظ على stepIdx كما هو
+
+        // Advance step
+        stepIdx++;
+        refreshCountersUI();
+
+        if (stepIdx >= 8){
+          // دورة اكتملت
+          stepIdx = 0;
+          cyclesDone += 1;
+          currentCycle += 1;
+          refreshCountersUI();
+          // optional breather
+          await sleep(200);
+        }
+      }
+    } finally {
+      // انتهينا إمّا بPause أو بخروج آخر
+      if (stopFlag){
+        log(`Paused @ Step ${stepIdx} (Cycle ${currentCycle}) — press Run to resume`, "log-other");
+        $("btnAuto").textContent = "Resume";
+      }else{
+        log("Stopped", "log-other");
+      }
+    }
+  }
+
+  /* -------- Manual “ready” mini-sequence (unchanged) -------- */
   async function processReadyCycle(){
     if (busy) return; busy = true;
     fill("bar_flash",0); fill("bar_test",0);
     setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
 
     setLed("led_flash","busy"); log("Flashing started","log-flash");
-    await animateBar("bar_flash",1200);
+    await animateBarOneShot("bar_flash","txt_flash",1200);
     setLed("led_flash","on"); log("Flashing done","log-flash");
 
     setLed("led_test","busy"); log("Testing started","log-test");
-    await animateBar("bar_test",1500);
+    await animateBarOneShot("bar_test","txt_test",1500);
     setLed("led_test","on"); log("Testing done","log-test");
 
     setLed("led_ack","on"); log("ACK ON → Robot","log-ack");
     await sleep(800);
     setLed("led_ack",""); log("ACK OFF","log-ack");
     busy = false;
+  }
+
+  function animateBarOneShot(idBar, idTxt, duration){
+    return new Promise((resolve)=>{
+      const start = performance.now();
+      (function step(now){
+        const p = Math.min(1, (now - start) / duration);
+        $(idBar).style.width = (p*100) + "%";
+        if (idTxt) $(idTxt).textContent = Math.round(p*100) + "%";
+        if (p >= 1) return resolve();
+        requestAnimationFrame(step);
+      })(start);
+    });
   }
 
   function setRobotAt(v){
@@ -201,6 +357,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // init
   renderPanelVisibility();
   refreshLEDs();
+  refreshCountersUI();
+  log("Ready — press Run to start Auto Cycle with Pause/Resume.");
   console.log("Auto button ready:", !!$("btnAuto"));
-  log("Ready — use Auto Cycle or manual toggles.");
+
+  /* -------- utility: inject counters UI if missing -------- */
+  function ensureCountersUI(){
+    if (!$('cyclesDone') || !$('currentCycle') || !$('stepLabel')){
+      // نحطّ badge شابة فوق الـcontrols لو مش موجودة
+      const controlsCard = document.querySelector('.card.card--controls') || document.querySelector('.card');
+      if (controlsCard){
+        const legend = document.createElement('div');
+        legend.className = 'legend';
+        legend.style.marginBottom = '8px';
+        legend.innerHTML = `
+          <span class="badge"><strong>Cycles:</strong>&nbsp;<span id="cyclesDone">0</span></span>
+          <span class="badge"><strong>Current:</strong>&nbsp;<span id="currentCycle">1</span></span>
+          <span class="badge"><strong>Step:</strong>&nbsp;<span id="stepLabel">Idle</span></span>
+        `;
+        // حطها بعد العنوان لو نلقاه
+        const h2 = controlsCard.querySelector('h2');
+        if (h2 && h2.nextSibling){
+          controlsCard.insertBefore(legend, h2.nextSibling);
+        }else{
+          controlsCard.prepend(legend);
+        }
+      }
+    }
+  }
 });
