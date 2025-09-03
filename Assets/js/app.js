@@ -177,8 +177,8 @@ placeAtP4(); log("Panel stored in P4");
 setRobotAt(0);
 setSensor(0);
 refreshLEDs();
-
-
+}
+}
   function animateBar(id, duration){
     return new Promise((resolve)=>{
       const start=performance.now();
@@ -227,5 +227,5 @@ refreshLEDs();
   refreshLEDs();
   console.log("Auto button ready:", !!$("btnAuto"));
   log("Ready — use Auto Cycle or manual toggles.");
-});
 
+}
