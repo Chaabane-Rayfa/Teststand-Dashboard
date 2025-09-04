@@ -65,7 +65,7 @@
           </filter>
 
           <!-- Neon Green Glow (strong & clean) -->
-          <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
             <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blurBase"/>
             <feColorMatrix in="blurBase" type="matrix"
               values="0 0 0 0 0
@@ -154,15 +154,17 @@
       <!-- ============ LEFT: Commands ============ -->
       <section class="panel-section">
         <h3>Commands</h3>
+        <h4>Manual Mode</h4>
         <div class="controls">
-          <h4>Manual Mode</h4>
           <button id="btnRobot"  class="btn-robot"  type="button">R.Target = 0</button>
           <button id="btnSensor" class="btn-sensor" type="button">T.Sensor = 0</button>
+          </div>
+        <div class="controls">
             <h4>Auto Mode</h4>
           <button id="btnAuto"   class="btn-auto"   type="button">Auto Cycle</button>
           <button id="btnStop"   class="btn-stop"   type="button" disabled>Stop</button>
           <button id="btnReset"  class="btn-sensor" type="button">Reset</button>
-        </div>
+         </div>
         <p class="hint">
           • <b>Auto</b> mode: P1 → P2 → P3 → P4.<br/>
           • R.Target / T.Sensor for <b>manual</b> tests.
