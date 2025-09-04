@@ -9,7 +9,7 @@
   --btn-green:#10b981; --btn-red:#ef4444;
 
   /* New: scene scaling + lighter sections */
-  --scene-scale: 1.22;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
+  --scene-scale: 1.25;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
   --section-bg-1: rgba(255,255,255,.08);
   --section-bg-2: rgba(255,255,255,.04);
   --section-brd:  rgba(255,255,255,.16);
