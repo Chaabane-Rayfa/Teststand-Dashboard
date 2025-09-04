@@ -1,4 +1,4 @@
-/* ================== Industrial Dark UI (stable) ================== */
+/* ================== Industrial Dark UI (latest) ================== */
 /* ---------- 1) Theme Variables ---------- */
 :root{
   --bg:#0f141a; --panel:#121922; --card:#171f28; --border:#1f2a36;
@@ -7,6 +7,12 @@
   --green:#20e3b2; --yellow:#f7c948; --red:#ff6b6b; --orange:#ff9f43;
   --btn-blue:#2563eb; --btn-blue-2:#3b82f6; --btn-orange:#f59e0b;
   --btn-green:#10b981; --btn-red:#ef4444;
+
+  /* New: scene scaling + lighter sections */
+  --scene-scale: 1.22;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
+  --section-bg-1: rgba(255,255,255,.08);
+  --section-bg-2: rgba(255,255,255,.04);
+  --section-brd:  rgba(255,255,255,.16);
 }
 
 /* ---------- 2) Base ---------- */
@@ -40,47 +46,46 @@ header{
   box-shadow:0 6px 18px rgba(0,0,0,.35);
 }
 
-/* عناوين الكروت — واضحة وبارزة لكل الكروت */
+/* Card titles (all) */
 .card h2{
   margin:0 0 12px 0;
   font-size:20px; font-weight:800; letter-spacing:.4px;
-  color:#f0f6ff;
-  text-shadow:0 2px 6px rgba(0,0,0,.5);
+  color:#f8fbff;
+  text-shadow:0 2px 6px rgba(0,0,0,.55);
   display:flex; align-items:center; gap:8px;
 }
 .card h2::before{
   content:""; width:10px; height:10px; border-radius:50%;
   background:linear-gradient(135deg,#3aa0ff,#20e3b2);
-  box-shadow:0 0 8px rgba(58,160,255,.8), 0 0 12px rgba(32,227,178,.6);
+  box-shadow:0 0 8px rgba(58,160,255,.85), 0 0 12px rgba(32,227,178,.7);
 }
 
 /* ---------- 3) Layout ---------- */
 main{
   display:grid;
   grid-template-columns:1.1fr 0.9fr;
-  gap:20px; align-items:stretch; /* مهم: stretch باش الكروت تكون قدّ قدّ */
+  gap:20px; align-items:stretch; /* نفس الارتفاع بين الكروت */
   padding:22px;
 }
-@media (max-width:1024px){
-  main{ grid-template-columns:1fr; }
-}
+@media (max-width:1024px){ main{ grid-template-columns:1fr; } }
 
-/* تقسيم كرت الكنترولز عمودي: Commands ↑ / Status ↓ */
+/* Control Panel vertical: Commands ↑ / Status ↓ */
 .panel-grid{
   display:grid;
-  grid-template-columns: 1fr !important; /* عمود واحد ديما */
-  grid-auto-rows: max-content;
+  grid-template-columns:1fr !important;
+  grid-auto-rows:max-content;
   gap:14px;
 }
 .panel-section{
-  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-  border:1px solid rgba(255,255,255,.06);
+  background: linear-gradient(180deg, var(--section-bg-1), var(--section-bg-2));
+  border:1px solid var(--section-brd);
   border-radius:12px;
   padding:12px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 6px 18px rgba(0,0,0,.25);
 }
 .panel-section h3{
   margin:0 0 10px 0;
-  font-size:16px; font-weight:800; letter-spacing:.3px; color:#f0f6ff;
+  font-size:16px; font-weight:800; letter-spacing:.3px; color:#f6fbff;
   display:flex; align-items:center; gap:8px;
 }
 .panel-section h3::before{
@@ -88,12 +93,9 @@ main{
   background:linear-gradient(135deg,#3aa0ff,#20e3b2);
   box-shadow:0 0 8px rgba(32,227,178,.7);
 }
-.subtle-title{
-  margin:8px 0; font-size:14px; font-weight:700; color:#cfe3ff; opacity:.9;
-}
+.subtle-title{ margin:8px 0; font-size:14px; font-weight:700; color:#d7e9ff; opacity:.95; }
 
 /* ---------- 4) Components ---------- */
-/* Card: glassmorphism + gradient border + strong motion */
 .card{
   position:relative; overflow:hidden;
   background: rgba(20, 28, 44, .72);
@@ -108,7 +110,7 @@ main{
     filter .35s ease;
   transform-origin:center center;
   will-change: transform, box-shadow;
-  height:100%; /* يتمدّ مع صف الـgrid */
+  height:100%;
 }
 .card::before{
   content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
@@ -124,27 +126,22 @@ main{
   filter: saturate(1.08) brightness(1.04);
 }
 
-/* كرت اللوج أغمق */
-.card--log{
-  background: linear-gradient(180deg,#0a0f16,#070b11) !important;
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow: inset 0 0 50px rgba(0,0,0,.5), 0 12px 36px rgba(0,0,0,.6);
+/* Darker, clearer log card + stronger title */
+.card--log{ background: linear-gradient(180deg,#0a0f16,#080c12) !important;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow: inset 0 0 50px rgba(0,0,0,.55), 0 12px 36px rgba(0,0,0,.65);
+}
+.card--log h2{
+  color:#ffffff; opacity:1; letter-spacing:.5px;
+  text-shadow:0 3px 12px rgba(0,0,0,.65);
 }
 
-/* Control card: توازن ارتفاع مع سكرول داخلي لو المحتوى طويل */
-.card--controls{
-  display:flex; flex-direction:column;
-  overflow:hidden;
-}
-.card--controls .panel-grid{
-  flex:1 1 auto;
-  overflow:auto;
-  padding-right:4px; /* مساحة صغيرة للسكرول بار */
-}
+/* Control card: keep height balanced; scroll inside if long */
+.card--controls{ display:flex; flex-direction:column; overflow:hidden; }
+.card--controls .panel-grid{ flex:1 1 auto; overflow:auto; padding-right:4px; }
 
 /* Controls & buttons */
 .controls{ display:flex; flex-wrap:wrap; gap:10px 12px; align-items:center; }
-
 button{
   border:0; color:#eaf2ff; font-weight:700; letter-spacing:.2px;
   border-radius:12px; padding:10px 16px; cursor:pointer;
@@ -153,8 +150,6 @@ button{
 }
 button:hover{ filter: saturate(1.15) brightness(1.05); }
 button:active{ transform: translateY(1px); }
-
-/* ألوان الأزرار حسب طلبك */
 .btn-robot{  background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); }
 .btn-sensor{ background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); }
 .btn-auto{   background: linear-gradient(135deg,#0B6E4F,var(--btn-green)); }
@@ -162,8 +157,7 @@ button:active{ transform: translateY(1px); }
 .btn-robot.active, .btn-sensor.active{
   box-shadow: 0 0 0 2px rgba(255,255,255,.15) inset, 0 0 16px rgba(58,160,255,.35);
 }
-
-/* تصغير بسيط في كرت الكنترولز */
+/* slight downsize in controls card for balance */
 .card--controls .controls button{ padding:8px 14px; border-radius:10px; font-size:14px; }
 .card--controls .hint{ font-size:12px; }
 .card--controls .row{ margin:7px 0; }
@@ -177,8 +171,8 @@ button:active{ transform: translateY(1px); }
 /* LED statuses */
 .led{
   width:20px; height:20px; border-radius:50%; margin-right:10px;
-  background:#233243;
-  box-shadow: inset 0 0 6px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
+  background:#2a3b50; /* أفتح شوية */
+  box-shadow: inset 0 0 6px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.08);
   transition: all .25s;
 }
 .led.on{   background:var(--green);  box-shadow:0 0 12px var(--green), 0 0 0 1px #1a2; }
@@ -188,89 +182,98 @@ button:active{ transform: translateY(1px); }
 /* Progress bar */
 .progress{
   position:relative; height:14px; margin-top:6px; border-radius:10px; overflow:hidden;
-  background: linear-gradient(180deg,#0f1725,#0b111a);
-  border:1px solid rgba(255,255,255,.06);
+  background: linear-gradient(180deg,#122034,#0b111a);
+  border:1px solid rgba(255,255,255,.08);
 }
 .bar{
   height:100%; width:0; display:flex; align-items:center; justify-content:center;
   background: linear-gradient(90deg,var(--accent),var(--accent2));
-  box-shadow:0 0 18px rgba(32,227,178,.35);
+  box-shadow:0 0 18px rgba(32,227,178,.4);
   transition: width .25s linear;
 }
 .bar span{
   position:absolute; width:100%; text-align:center;
-  font-size:11px; color:#0b1220; font-weight:800;
+  font-size:11px; color:#06101a; font-weight:800;
 }
 
 /* Event log content */
 #log{
   font-size:13px; max-height:260px; overflow:auto;
-  background: linear-gradient(180deg,#070b11,#060a10);
+  background: linear-gradient(180deg,#080c12,#060a10);
   color:#e2f0ff; border-radius:12px; padding:12px; line-height:1.5;
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow: inset 0 0 40px rgba(0,0,0,.35);
-}
-#log .log-title{
-  font-weight:800; font-size:13px; letter-spacing:.25px;
-  color:#cfe3ff; margin-bottom:8px;
-  text-transform:uppercase; opacity:.95;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow: inset 0 0 40px rgba(0,0,0,.38);
 }
 .log-flash{ color:#ffd166 }
 .log-test{  color:#8fc9ff }
 .log-ack{   color:#48f0be }
 .log-other{ color:#b0c2d6 }
 
-/* Scene */
+/* ---------- 5) Scene ---------- */
 .scene-card{ position:relative; }
 .scene-wrap{
   position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; border-radius:12px;
-  border:1px solid rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
   background:
-    radial-gradient(600px 300px at 60% 10%, rgba(32,227,178,.10), transparent 60%),
-    radial-gradient(520px 260px at 25% 25%, rgba(58,160,255,.09), transparent 60%),
-    linear-gradient(180deg,#0c1422,#0a1118) !important;
+    radial-gradient(700px 340px at 55% 8%, rgba(32,227,178,.13), transparent 60%),
+    radial-gradient(560px 280px at 25% 22%, rgba(58,160,255,.11), transparent 60%),
+    linear-gradient(180deg,#0f1a2a,#0a1118) !important; /* أفتح شوية من قبل */
 }
-.card:hover .scene-wrap{ transform: translateY(-2px); transition: transform .35s ease; }
+/* كبّر محتوى الـSVG بدون تغيير حجم الكرت */
+.scene-wrap svg{
+  transform: scale(var(--scene-scale)) translateY(-6px);
+  transform-origin: 50% 42%;
+}
+@media (max-width:1024px){
+  .scene-wrap svg{ transform: scale(1.06); }
+}
+
+/* Grid overlay خفيف */
 .scene-wrap::after{
   content:""; position:absolute; inset:0; pointer-events:none;
   background: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px) 0 0/100% 24px;
-  mix-blend-mode: overlay; opacity:.15;
+  mix-blend-mode: overlay; opacity:.12;
 }
 
 /* Legend / badges */
 .legend{
   display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;
-  font-size:14px; font-weight:600; color:#cfe3ff;
+  font-size:14px; font-weight:600; color:#d7e9ff;
   text-shadow: 0 1px 0 rgba(0,0,0,.35);
 }
 .badge{
   display:inline-flex; align-items:center; gap:6px;
-  background:linear-gradient(180deg,#0f1724,#0b121c);
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:999px; padding:4px 10px; color:#eaf2ff;
+  background:linear-gradient(180deg,#12243a,#0c1828);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px; padding:4px 10px; color:#eef6ff;
 }
 .dot{
-  width:10px; height:10px; border-radius:50%;
-  display:inline-block;
+  width:10px; height:10px; border-radius:50%; display:inline-block;
   box-shadow: 0 0 0 2px rgba(0,0,0,.35), inset 0 0 10px rgba(255,255,255,.06);
 }
-.dot-pick{  background:#8e44ad; }
-.dot-over{  background:#16a085; }
-.dot-place{ background:#c0392b; }
-.dot-store{ background:#2980b9; }
+.dot-pick{  background:#b084ff; }
+.dot-over{  background:#26e6c9; }
+.dot-place{ background:#ff6b6b; }
+.dot-store{ background:#3aa0ff; }
 
-/* ---------- 5) SVG Color Tweaks ---------- */
-#svg rect[fill="#e8edf5"]{ fill:#0e1622 !important; } /* floor */
-#svg rect[fill="#ccd9ea"]{ fill:#223041 !important; stroke:#2f4561 !important; }
-#svg rect[fill="#b7c8e1"]{ fill:#2b3b52 !important; }
-#svg rect[fill="#bfcde2"]{ fill:#30445e !important; }
-#svg rect[fill="#dfe6ee"]{ fill:#1e2835 !important; stroke:#29384d !important; }
-#svg circle[fill="#8e44ad"]{ fill:#b084ff !important; }
-#svg circle[fill="#16a085"]{ fill:#26e6c9 !important; }
-#svg circle[fill="#c0392b"]{ fill:#ff6b6b !important; filter:url(#softGlow); } /* neon glow */
+/* ---------- 6) SVG Color Tweaks (lighter for better contrast) ---------- */
+#svg rect[fill="#e8edf5"]{ fill:#152235 !important; } /* floor: أفتح من قبل */
+#svg rect[fill="#ccd9ea"]{ fill:#355273 !important; stroke:#86a4c4 !important; }
+#svg rect[fill="#b7c8e1"]{ fill:#416089 !important; }
+#svg rect[fill="#bfcde2"]{ fill:#476b95 !important; }
+#svg rect[fill="#dfe6ee"]{ fill:#20324a !important; stroke:#4a6b8f !important; }
+/* markers */
+#svg circle[fill="#8e44ad"]{ fill:#c6a4ff !important; }
+#svg circle[fill="#16a085"]{ fill:#3ff1d3 !important; }
+#svg circle[fill="#c0392b"]{ fill:#ff7d7d !important; filter:url(#softGlow); }
+/* panels: ألوان أوضح + توهج */
+#panelStack, #panelStand, #panelP4, #panelCarry{
+  fill:#2ff3c5 !important; filter:url(#softGlow);
+}
 
-/* ---------- 6) Accessibility / Motion Preferences ---------- */
+/* ---------- 7) Accessibility / Motion ---------- */
 @media (prefers-reduced-motion: reduce){
   .card, .card:hover, .scene-wrap{ transition:none; transform:none; }
+  .scene-wrap svg{ transform:none; }
   .card--controls .panel-grid{ overflow:visible; }
 }
