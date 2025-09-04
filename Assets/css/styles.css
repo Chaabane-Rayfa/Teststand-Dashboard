@@ -221,8 +221,8 @@ button:active{ transform: translateY(1px); }
 }
 /* كبّر محتوى الـSVG بدون تغيير حجم الكرت */
 .scene-wrap svg{
-  transform: scale(var(--scene-scale)) translateY(-6px);
-  transform-origin: 50% 42%;
+  transform: scale(var(--scene-scale)) translateY(-8px);
+  transform-origin: 50% 43%;
 }
 @media (max-width:1024px){
   .scene-wrap svg{ transform: scale(1.06); }
