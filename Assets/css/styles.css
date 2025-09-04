@@ -39,7 +39,7 @@ body::after{
 }
 
 header{
-  background:linear-gradient(180deg,#632E48 30%, #743554 100%) !important;
+  background:linear-gradient(180deg,#2B2045 50%, #483674 100%) !important;
   color:var(--text); padding:16px 24px;
   font-size:18px; font-weight:700;
   border-bottom:1px solid var(--border);
