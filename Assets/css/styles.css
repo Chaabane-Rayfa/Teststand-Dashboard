@@ -10,8 +10,14 @@
   --purple-soft: rgba(103,78,167,.22);
   --magenta: rgba(196, 93, 255, .18);
   --teal-soft: rgba(60, 230, 210, .10); /* لمسة سيان خفيفة */
+    /* New: scene scaling + lighter sections */
+  --scene-scale: 1.25;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
+  --section-bg-1: rgba(255,255,255,.08);
+  --section-bg-2: rgba(255,255,255,.04);
+  --section-brd:  rgba(255,255,255,.16);
 }
-
+}
+*{ box-sizing:border-box }
 /* الخلفية الأساسية */
 body{
   margin:0;
@@ -36,16 +42,19 @@ body::before{
 /* طبقة Aurora متحرّكة (من غير HTML إضافي) */
 body::after{
   content:"";
-  position:fixed; inset:-12% -12%; pointer-events:none; z-index:-1;
-  /* ثلاث هالات راديال تتحرّك وتتمدد */
+  position:fixed;
+  inset:-12% -12%;
+  pointer-events:none;
+  z-index: 0;              /* بدل -1 → 0 (أو 1) باش يبان فوق الخلفية */
   background:
-    radial-gradient(40% 45% at 18% 22%, rgba(103,78,167,.30), transparent 60%),
-    radial-gradient(50% 55% at 82% 18%, rgba(190,120,255,.22), transparent 65%),
-    radial-gradient(60% 60% at 60% 85%, rgba(60,230,210,.12), transparent 70%);
+    radial-gradient(40% 45% at var(--a1x,18%) var(--a1y,24%), rgba(103,78,167,.30), transparent 60%),
+    radial-gradient(52% 58% at var(--a2x,82%) var(--a2y,18%), rgba(190,120,255,.22), transparent 65%),
+    radial-gradient(60% 60% at var(--a3x,60%) var(--a3y,84%), rgba(60,230,210,.12), transparent 70%),
+    radial-gradient(120% 90% at 50% -10%, rgba(255,255,255,.04), transparent 60%);
   filter: blur(22px) saturate(115%);
   animation: auroraFloat 18s ease-in-out infinite alternate,
              auroraDrift 36s linear infinite;
-  mix-blend-mode: screen;        /* يدمج بالسطوع باش يعطي توهج */
+  mix-blend-mode: screen;
   opacity:.9;
 }
 
