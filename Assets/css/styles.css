@@ -24,22 +24,22 @@ body{
   background:
     radial-gradient(1200px 600px at 75% -10%, rgba(58,160,255,.20), transparent 60%),
     radial-gradient(900px 500px at 10% 110%, rgba(32,227,178,.18), transparent 60%),
-    linear-gradient(135deg, #0b1020 0%, #0a1527 45%, #0b1322 100%) !important;
+    linear-gradient(135deg, #523E85 20%, #493777 45%, #5B4B84 100%) !important;
 }
 body::before{
   content:""; position:fixed; inset:0; pointer-events:none;
   background:
-    linear-gradient(transparent 96%, rgba(255,255,255,.06) 96%) 0 0/100% 22px,
-    linear-gradient(90deg, transparent 96%, rgba(255,255,255,.06) 96%) 0 0/22px 100%;
+    linear-gradient(transparent 96%, rgba(72,65,93,.06) 96%) 0 0/100% 22px,
+    linear-gradient(90deg, transparent 96%, rgba(72,65,93,.06) 96%) 0 0/22px 100%;
   opacity:.05;
 }
 body::after{
   content:""; position:fixed; inset:0; pointer-events:none;
-  background:radial-gradient(1100px 500px at 50% 20%, transparent 60%, rgba(0,0,0,.45) 100%);
+  background:radial-gradient(1100px 500px at 50% 20%, transparent 60%, rgba(104,87,148,.45) 100%);
 }
 
 header{
-  background:linear-gradient(180deg,#0d141c 0%, #0a1118 100%) !important;
+  background:linear-gradient(180deg,#632E48 30%, #743554 100%) !important;
   color:var(--text); padding:16px 24px;
   font-size:18px; font-weight:700;
   border-bottom:1px solid var(--border);
