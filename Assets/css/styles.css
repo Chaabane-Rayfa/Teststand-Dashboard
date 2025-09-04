@@ -57,9 +57,8 @@ header{
 .card h2::before{
   content:""; width:10px; height:10px; border-radius:50%;
   background:linear-gradient(135deg,#C90076,#EAD1DC);
-  box-shadow:0 0 8px rgba(58,160,255,.85), 0 0 12px rgba(32,227,178,.7);
+  box-shadow:0 0 8px rgba(187,167,176,.85), 0 0 12px rgba(234,209,220,.7);
 }
-
 /* ---------- 3) Layout ---------- */
 main{
   display:grid;
@@ -90,8 +89,8 @@ main{
 }
 .panel-section h3::before{
   content:""; width:8px; height:8px; border-radius:50%;
-  background:linear-gradient(135deg,#3aa0ff,#20e3b2);
-  box-shadow:0 0 8px rgba(32,227,178,.7);
+  background:linear-gradient(135deg,#C90076,#EAD1DC);
+  box-shadow:0 0 8px rgba(234,209,220,.7);
 }
 .subtle-title{ margin:8px 0; font-size:14px; font-weight:700; color:#d7e9ff; opacity:.95; }
 
@@ -267,10 +266,15 @@ button:active{ transform: translateY(1px); }
 #svg circle[fill="#16a085"]{ fill:#3ff1d3 !important; }
 #svg circle[fill="#c0392b"]{ fill:#ff7d7d !important; filter:url(#softGlow); }
 /* panels: ألوان أوضح + توهج */
-#panelStack, #panelStand, #panelP4, #panelCarry{
-  fill:#2ff3c5 !important; filter:url(#softGlow);
+/* خفّض توهج البانيلات */
+#panelStack, #panelStand, #panelP4{
+  fill:#25e7c0 !important;
+  filter:none !important;           /* بلا توهج */
 }
-
+#panelCarry{
+  fill:#25e7c0 !important;
+  filter:url(#softGlowLite) !important;  /* توهج خفيف وقت شايلها الروبوت */
+}
 /* ---------- 7) Accessibility / Motion ---------- */
 @media (prefers-reduced-motion: reduce){
   .card, .card:hover, .scene-wrap{ transition:none; transform:none; }
