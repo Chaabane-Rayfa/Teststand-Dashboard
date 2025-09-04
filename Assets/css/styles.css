@@ -9,7 +9,7 @@
   --btn-green:#10b981; --btn-red:#ef4444;
 
   /* New: scene scaling + lighter sections */
-  --scene-scale: 1.25;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
+  --scene-scale: 1.18;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
   --section-bg-1: rgba(232,228,242,.08);
   --section-bg-2: rgba(232,228,242,.04);
   --section-brd:  rgba(232,228,242,.16);
@@ -320,3 +320,34 @@ button:active{ transform: translateY(1px); }
   .scene-wrap svg{ transform:none; }
   .card--controls .panel-grid{ overflow:visible; }
 }
+/* === Rebalance layout: smaller Robot card, larger Control Panel === */
+@media (min-width:1025px){
+  /* بدّل نسب الأعمدة: اليسار أضيق، اليمين أوسع */
+  main{
+    grid-template-columns: 0.92fr 1.08fr !important;
+  }
+}
+/* على الشاشات الكبيرة زد شوية مساحة للكنترول بانل */
+@media (min-width:1400px){
+  main{
+    grid-template-columns: 0.88fr 1.12fr !important;
+  }
+}
+
+/* === Shrink scene content a touch so it breathes */
+:root{
+  --scene-scale: 1.18; /* كان ~1.25: صغّرنا شوية */
+}
+
+/* === Let Commands/Status grow on hover without being clipped */
+.card--controls{ overflow: visible !important; }
+.card--controls .panel-grid{ overflow: visible !important; }
+
+/* مساحة آمنة للموشن داخل البانيلز */
+.card--controls .panel-section{
+  will-change: transform, box-shadow, filter;
+}
+
+/* اختيارياً: زِد gap باش الhover ما يلمس الحدود */
+.panel-grid{ gap: 16px !important; }
+
