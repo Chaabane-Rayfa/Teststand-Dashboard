@@ -249,7 +249,7 @@ button:active{ transform: translateY(1px); }
 }
 .dot{
   width:10px; height:10px; border-radius:50%; display:inline-block;
-  box-shadow: 0 0 0 2px rgba(0,0,0,.35), inset 0 0 10px rgba(255,255,255,.06);
+  box-shadow: 0 0 0 2px rgba(0,0,0,.20), inset 0 0 10px rgba(255,255,255,.06);
 }
 .dot-pick{  background:#b084ff; }
 .dot-over{  background:#26e6c9; }
