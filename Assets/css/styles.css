@@ -16,7 +16,6 @@ body{
   margin:0;
   font-family:'Segoe UI', Roboto, Arial, sans-serif;
   color:var(--text);
-  /* Futuristic layered gradients */
   background:
     radial-gradient(1200px 600px at 75% -10%, rgba(58,160,255,.20), transparent 60%),
     radial-gradient(900px 500px at 10% 110%, rgba(32,227,178,.18), transparent 60%),
@@ -45,9 +44,19 @@ header{
   box-shadow:0 6px 18px rgba(0,0,0,.35);
 }
 
-h2{
+/* عناوين الكروت — واضحة وبارزة لكل الكروت */
+.card h2{
   margin:0 0 12px 0;
-  font-size:18px; font-weight:700; color:#e9eef7;
+  font-size:20px; font-weight:800; letter-spacing:.4px;
+  color:#f0f6ff;
+  text-shadow:0 2px 6px rgba(0,0,0,.5);
+  display:flex; align-items:center; gap:8px;
+}
+.card h2::before{
+  content:"";
+  width:10px; height:10px; border-radius:50%;
+  background:linear-gradient(135deg,#3aa0ff,#20e3b2);
+  box-shadow:0 0 8px rgba(58,160,255,.8), 0 0 12px rgba(32,227,178,.6);
 }
 
 /* ---------- 3) Layout ---------- */
@@ -58,6 +67,36 @@ main{
 }
 @media (max-width:1024px){
   main{ grid-template-columns:1fr; }
+}
+
+/* تقسيم كرت الكنترولز إلى قسمين */
+.panel-grid{
+  display:grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap:18px;
+}
+@media (max-width:1024px){
+  .panel-grid{ grid-template-columns:1fr; }
+}
+.panel-section{
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;
+  padding:14px;
+}
+.panel-section h3{
+  margin:0 0 12px 0;
+  font-size:16px; font-weight:800; letter-spacing:.3px; color:#f0f6ff;
+  display:flex; align-items:center; gap:8px;
+}
+.panel-section h3::before{
+  content:"";
+  width:8px; height:8px; border-radius:50%;
+  background:linear-gradient(135deg,#3aa0ff,#20e3b2);
+  box-shadow:0 0 8px rgba(32,227,178,.7);
+}
+.subtle-title{
+  margin:8px 0 8px 0; font-size:14px; font-weight:700; color:#cfe3ff; opacity:.9;
 }
 
 /* ---------- 4) Components ---------- */
@@ -80,7 +119,7 @@ main{
 .card::before{
   content:"";
   position:absolute; inset:0; pointer-events:none; border-radius:inherit;
-  padding:1px; /* gradient border thickness */
+  padding:1px;
   background: linear-gradient(135deg, rgba(58,160,255,.55), rgba(32,227,178,.55));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
@@ -92,27 +131,11 @@ main{
   filter: saturate(1.08) brightness(1.04);
 }
 
-/* Log card variant (darker + prominent title) */
+/* Log card variant */
 .card--log{
   background: linear-gradient(180deg,#0a0f16,#070b11) !important;
   border:1px solid rgba(255,255,255,.12);
   box-shadow: inset 0 0 50px rgba(0,0,0,.5), 0 12px 36px rgba(0,0,0,.6);
-}
-.card--log h2{
-  font-size:20px;          /* أكبر من قبل */
-  font-weight:800;         /* أثقل */
-  color:#f0f6ff;           /* أفتح باش يبان */
-  letter-spacing:.4px;     /* مسافة صغيرة بين الحروف */
-  margin-bottom:14px;
-  text-shadow:0 2px 6px rgba(0,0,0,.5); /* Glow خفيف يوضح النص */
-  display:flex; align-items:center; gap:8px;
-}
-.card--log h2::before{
-  content:"";
-  width:10px; height:10px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#3aa0ff,#20e3b2);
-  box-shadow:0 0 8px rgba(58,160,255,.8), 0 0 12px rgba(32,227,178,.6);
 }
 
 /* Controls & buttons */
@@ -128,7 +151,7 @@ button:hover{ filter: saturate(1.15) brightness(1.05); }
 button:active{ transform: translateY(1px); }
 
 .btn-robot{  background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); }
-.btn-sensor{ background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); }
+.btn-sensor{ background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); } /* حسب طلبك */
 .btn-auto{   background: linear-gradient(135deg,#0B6E4F,var(--btn-green)); }
 .btn-stop{   background: linear-gradient(135deg,var(--red),#800000); }
 .btn-robot.active, .btn-sensor.active{
@@ -205,7 +228,7 @@ button:active{ transform: translateY(1px); }
   mix-blend-mode: overlay; opacity:.15;
 }
 
-/* Legend / badges (clearer contrast) */
+/* Legend / badges */
 .legend{
   display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;
   font-size:14px; font-weight:600; color:#cfe3ff;
@@ -226,7 +249,7 @@ button:active{ transform: translateY(1px); }
 .dot-place{ background:#c0392b; }
 .dot-store{ background:#2980b9; }
 
-/* ---------- 5) SVG Color Tweaks (darken defaults + neon markers) ---------- */
+/* ---------- 5) SVG Color Tweaks ---------- */
 #svg rect[fill="#e8edf5"]{ fill:#0e1622 !important; } /* floor */
 #svg rect[fill="#ccd9ea"]{ fill:#223041 !important; stroke:#2f4561 !important; }
 #svg rect[fill="#b7c8e1"]{ fill:#2b3b52 !important; }
@@ -234,7 +257,7 @@ button:active{ transform: translateY(1px); }
 #svg rect[fill="#dfe6ee"]{ fill:#1e2835 !important; stroke:#29384d !important; }
 #svg circle[fill="#8e44ad"]{ fill:#b084ff !important; }
 #svg circle[fill="#16a085"]{ fill:#26e6c9 !important; }
-#svg circle[fill="#c0392b"]{ fill:#ff6b6b !important; filter:url(#softGlow); } /* soft neon glow */
+#svg circle[fill="#c0392b"]{ fill:#ff6b6b !important; filter:url(#softGlow); } /* neon glow */
 
 /* ---------- 6) Accessibility / Motion Preferences ---------- */
 @media (prefers-reduced-motion: reduce){
