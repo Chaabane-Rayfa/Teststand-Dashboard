@@ -12,7 +12,7 @@
 <main>
   <!-- LEFT: Scene -->
 <div class="card scene-card card--robot">
-    <h2>Robot & Teststand (Simulation)</h2>
+
     <h2>Doosan  & Teststand (Simulation)</h2>
     <div class="scene-wrap">
       <!-- Scalable SVG workspace -->
@@ -70,16 +70,16 @@
  <!-- توهج نيّون أخضر قوي -->
 <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
   <!-- نسخة ملوّنة بالفلود لتحديد لون الهالة -->
-  <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blurBase"/>
+  <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blurBase"/>
   <feColorMatrix in="blurBase" type="matrix"
     values="0 0 0 0 0
             0 1.6 0 0 0
             0 0 0 0 0
             0 0 0 1 0" result="greenCore"/>
   <!-- هالة خارجية أوسع وأخف -->
-  <feGaussianBlur in="greenCore" stdDeviation="8" result="haloOuter"/>
+  <feGaussianBlur in="greenCore" stdDeviation="15" result="haloOuter"/>
   <!-- تلوين الهالة الخارجية ليكون أخضر صريح -->
-  <feFlood flood-color="#26e6c9" flood-opacity="0.85" result="flood"/>
+  <feFlood flood-color="#26e6c9" flood-opacity="3" result="flood"/>
   <feComposite in="flood" in2="haloOuter" operator="in" result="tintedHalo"/>
   <!-- دمج طبقات النيّون -->
   <feMerge>
