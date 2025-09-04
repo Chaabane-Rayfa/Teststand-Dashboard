@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>🦾 Doosan Teststand — Advanced Simulation</title>
   <title>🦾 Automated Cafe 4 Teststand </title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <link rel="stylesheet" href="Assets/css/styles.css">
 </head>
 <body>
-<header>🦾 Doosan Teststand — Advanced Simulation</header>
 <header>🦾 Automated Cafe 4 Teststand </header>
 
 <main>
@@ -43,43 +41,54 @@
        <circle cx="400" cy="280" r="5" fill="#c0392b"/>   <!-- P3 -->
        <circle cx="250" cy="280" r="5" fill="#2980b9"/>   <!-- P4 -->
 
-      <!-- ===== Robot (fancy 2D) ===== -->
       <!-- ===== Robot ===== -->
 <!-- Gradients & filters -->
 <defs>
-  <!-- معدن غامق -->
   <!-- Dark Metal -->
   <linearGradient id="armMetal" x1="0" y1="0" x2="1" y2="0">
     <stop offset="0"  stop-color="#0e1722"/>
     <stop offset="0.5" stop-color="#223041"/>
     <stop offset="1"  stop-color="#0c131b"/>
   </linearGradient>
-  <!-- لمعة جانبية -->
   <!-- Side Flash -->
   <linearGradient id="armEdge" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="rgba(255,255,255,.25)"/>
     <stop offset="1" stop-color="rgba(255,255,255,0)"/>
   </linearGradient>
-  <!-- معدن فاتح للـgripper -->
   <!-- Light Metal for gripper -->
   <linearGradient id="gripMetal" x1="0" y1="0" x2="1" y2="0">
     <stop offset="0"  stop-color="#7b8da0"/>
     <stop offset="1"  stop-color="#9fb0c2"/>
   </linearGradient>
-  <!-- ظل خفيف -->
+  
   <!-- Background shadow -->
   <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
-    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".35"/>
-    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".20"/>
+    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".15"/>
+    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".10"/>
   </filter>
-  <!-- توهج أخضر خفيف للأضواء -->
-  <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
-    <feGaussianBlur stdDeviation="2" result="b"/>
-    <feMerge>
-      <feMergeNode in="b"/>
-      <feMergeNode in="SourceGraphic"/>
-    </feMerge>
-  </filter>
+
+ <!-- توهج نيّون أخضر قوي -->
+<filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+  <!-- نسخة ملوّنة بالفلود لتحديد لون الهالة -->
+  <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blurBase"/>
+  <feColorMatrix in="blurBase" type="matrix"
+    values="0 0 0 0 0
+            0 1.6 0 0 0
+            0 0 0 0 0
+            0 0 0 1 0" result="greenCore"/>
+  <!-- هالة خارجية أوسع وأخف -->
+  <feGaussianBlur in="greenCore" stdDeviation="8" result="haloOuter"/>
+  <!-- تلوين الهالة الخارجية ليكون أخضر صريح -->
+  <feFlood flood-color="#26e6c9" flood-opacity="0.85" result="flood"/>
+  <feComposite in="flood" in2="haloOuter" operator="in" result="tintedHalo"/>
+  <!-- دمج طبقات النيّون -->
+  <feMerge>
+    <feMergeNode in="tintedHalo"/>
+    <feMergeNode in="greenCore"/>
+    <feMergeNode in="SourceGraphic"/>
+  </feMerge>
+</filter>
+  
 </defs>
 
 <!-- Robot base -->
