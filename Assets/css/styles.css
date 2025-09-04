@@ -11,7 +11,6 @@
 
 /* ---------- 2) Base ---------- */
 *{ box-sizing:border-box }
-
 body{
   margin:0;
   font-family:'Segoe UI', Roboto, Arial, sans-serif;
@@ -22,23 +21,20 @@ body{
     linear-gradient(135deg, #0b1020 0%, #0a1527 45%, #0b1322 100%) !important;
 }
 body::before{
-  content:"";
-  position:fixed; inset:0; pointer-events:none;
+  content:""; position:fixed; inset:0; pointer-events:none;
   background:
     linear-gradient(transparent 96%, rgba(255,255,255,.06) 96%) 0 0/100% 22px,
     linear-gradient(90deg, transparent 96%, rgba(255,255,255,.06) 96%) 0 0/22px 100%;
   opacity:.05;
 }
 body::after{
-  content:"";
-  position:fixed; inset:0; pointer-events:none;
+  content:""; position:fixed; inset:0; pointer-events:none;
   background:radial-gradient(1100px 500px at 50% 20%, transparent 60%, rgba(0,0,0,.45) 100%);
 }
 
 header{
   background:linear-gradient(180deg,#0d141c 0%, #0a1118 100%) !important;
-  color:var(--text);
-  padding:16px 24px;
+  color:var(--text); padding:16px 24px;
   font-size:18px; font-weight:700;
   border-bottom:1px solid var(--border);
   box-shadow:0 6px 18px rgba(0,0,0,.35);
@@ -53,8 +49,7 @@ header{
   display:flex; align-items:center; gap:8px;
 }
 .card h2::before{
-  content:"";
-  width:10px; height:10px; border-radius:50%;
+  content:""; width:10px; height:10px; border-radius:50%;
   background:linear-gradient(135deg,#3aa0ff,#20e3b2);
   box-shadow:0 0 8px rgba(58,160,255,.8), 0 0 12px rgba(32,227,178,.6);
 }
@@ -63,40 +58,38 @@ header{
 main{
   display:grid;
   grid-template-columns:1.1fr 0.9fr;
-  gap:20px; align-items:start; padding:22px;
+  gap:20px; align-items:stretch; /* مهم: stretch باش الكروت تكون قدّ قدّ */
+  padding:22px;
 }
 @media (max-width:1024px){
   main{ grid-template-columns:1fr; }
 }
 
-/* تقسيم كرت الكنترولز إلى قسمين */
+/* تقسيم كرت الكنترولز عمودي: Commands ↑ / Status ↓ */
 .panel-grid{
   display:grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap:18px;
-}
-@media (max-width:1024px){
-  .panel-grid{ grid-template-columns:1fr; }
+  grid-template-columns: 1fr !important; /* عمود واحد ديما */
+  grid-auto-rows: max-content;
+  gap:14px;
 }
 .panel-section{
   background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
   border:1px solid rgba(255,255,255,.06);
   border-radius:12px;
-  padding:14px;
+  padding:12px;
 }
 .panel-section h3{
-  margin:0 0 12px 0;
+  margin:0 0 10px 0;
   font-size:16px; font-weight:800; letter-spacing:.3px; color:#f0f6ff;
   display:flex; align-items:center; gap:8px;
 }
 .panel-section h3::before{
-  content:"";
-  width:8px; height:8px; border-radius:50%;
+  content:""; width:8px; height:8px; border-radius:50%;
   background:linear-gradient(135deg,#3aa0ff,#20e3b2);
   box-shadow:0 0 8px rgba(32,227,178,.7);
 }
 .subtle-title{
-  margin:8px 0 8px 0; font-size:14px; font-weight:700; color:#cfe3ff; opacity:.9;
+  margin:8px 0; font-size:14px; font-weight:700; color:#cfe3ff; opacity:.9;
 }
 
 /* ---------- 4) Components ---------- */
@@ -115,10 +108,10 @@ main{
     filter .35s ease;
   transform-origin:center center;
   will-change: transform, box-shadow;
+  height:100%; /* يتمدّ مع صف الـgrid */
 }
 .card::before{
-  content:"";
-  position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
   padding:1px;
   background: linear-gradient(135deg, rgba(58,160,255,.55), rgba(32,227,178,.55));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -131,11 +124,22 @@ main{
   filter: saturate(1.08) brightness(1.04);
 }
 
-/* Log card variant */
+/* كرت اللوج أغمق */
 .card--log{
   background: linear-gradient(180deg,#0a0f16,#070b11) !important;
   border:1px solid rgba(255,255,255,.12);
   box-shadow: inset 0 0 50px rgba(0,0,0,.5), 0 12px 36px rgba(0,0,0,.6);
+}
+
+/* Control card: توازن ارتفاع مع سكرول داخلي لو المحتوى طويل */
+.card--controls{
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.card--controls .panel-grid{
+  flex:1 1 auto;
+  overflow:auto;
+  padding-right:4px; /* مساحة صغيرة للسكرول بار */
 }
 
 /* Controls & buttons */
@@ -150,13 +154,20 @@ button{
 button:hover{ filter: saturate(1.15) brightness(1.05); }
 button:active{ transform: translateY(1px); }
 
+/* ألوان الأزرار حسب طلبك */
 .btn-robot{  background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); }
-.btn-sensor{ background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); } /* حسب طلبك */
+.btn-sensor{ background: linear-gradient(135deg,var(--btn-blue-2),var(--btn-blue)); }
 .btn-auto{   background: linear-gradient(135deg,#0B6E4F,var(--btn-green)); }
 .btn-stop{   background: linear-gradient(135deg,var(--red),#800000); }
 .btn-robot.active, .btn-sensor.active{
   box-shadow: 0 0 0 2px rgba(255,255,255,.15) inset, 0 0 16px rgba(58,160,255,.35);
 }
+
+/* تصغير بسيط في كرت الكنترولز */
+.card--controls .controls button{ padding:8px 14px; border-radius:10px; font-size:14px; }
+.card--controls .hint{ font-size:12px; }
+.card--controls .row{ margin:7px 0; }
+.card--controls .progress{ height:12px; }
 
 /* Small text & rows */
 .hint{ color:var(--muted); font-size:13px; margin-top:6px; }
@@ -212,8 +223,7 @@ button:active{ transform: translateY(1px); }
 /* Scene */
 .scene-card{ position:relative; }
 .scene-wrap{
-  position:relative;
-  width:100%; aspect-ratio:16/9; overflow:hidden; border-radius:12px;
+  position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; border-radius:12px;
   border:1px solid rgba(255,255,255,.06);
   background:
     radial-gradient(600px 300px at 60% 10%, rgba(32,227,178,.10), transparent 60%),
@@ -222,8 +232,7 @@ button:active{ transform: translateY(1px); }
 }
 .card:hover .scene-wrap{ transform: translateY(-2px); transition: transform .35s ease; }
 .scene-wrap::after{
-  content:"";
-  position:absolute; inset:0; pointer-events:none;
+  content:""; position:absolute; inset:0; pointer-events:none;
   background: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px) 0 0/100% 24px;
   mix-blend-mode: overlay; opacity:.15;
 }
@@ -241,7 +250,8 @@ button:active{ transform: translateY(1px); }
   border-radius:999px; padding:4px 10px; color:#eaf2ff;
 }
 .dot{
-  width:10px; height:10px; border-radius:50%; display:inline-block;
+  width:10px; height:10px; border-radius:50%;
+  display:inline-block;
   box-shadow: 0 0 0 2px rgba(0,0,0,.35), inset 0 0 10px rgba(255,255,255,.06);
 }
 .dot-pick{  background:#8e44ad; }
@@ -262,4 +272,5 @@ button:active{ transform: translateY(1px); }
 /* ---------- 6) Accessibility / Motion Preferences ---------- */
 @media (prefers-reduced-motion: reduce){
   .card, .card:hover, .scene-wrap{ transition:none; transform:none; }
+  .card--controls .panel-grid{ overflow:visible; }
 }
