@@ -67,21 +67,20 @@
     <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".10"/>
   </filter>
 
- <!-- توهج نيّون أخضر قوي -->
+ <!-- Neon Green-->
 <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
-  <!-- نسخة ملوّنة بالفلود لتحديد لون الهالة -->
+ 
   <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blurBase"/>
   <feColorMatrix in="blurBase" type="matrix"
     values="0 0 0 0 0
             0 1.6 0 0 0
             0 0 0 0 0
             0 0 0 1 0" result="greenCore"/>
-  <!-- هالة خارجية أوسع وأخف -->
+ 
   <feGaussianBlur in="greenCore" stdDeviation="15" result="haloOuter"/>
-  <!-- تلوين الهالة الخارجية ليكون أخضر صريح -->
+
   <feFlood flood-color="#26e6c9" flood-opacity="3" result="flood"/>
   <feComposite in="flood" in2="haloOuter" operator="in" result="tintedHalo"/>
-  <!-- دمج طبقات النيّون -->
   <feMerge>
     <feMergeNode in="tintedHalo"/>
     <feMergeNode in="greenCore"/>
@@ -137,11 +136,11 @@
           <circle cx=" 6" cy=" 10" r="1.4" fill="#4a5b6b"/>
         </g>
 
-        <!-- أصابع الماسك (نفس الـIDs حتى يفضل JS يخدم) -->
+        <!-- Gripper Fingers (JS for same Ids ) -->
         <rect id="fingerL" x="-18" y="-4" width="8" height="8" rx="2" fill="#9fb0c2" stroke="#6b7c8e" stroke-width="1"/>
         <rect id="fingerR" x="10"  y="-4" width="8" height="8" rx="2" fill="#9fb0c2" stroke="#6b7c8e" stroke-width="1"/>
 
-        <!-- اللوحة المحمولة (نفس ID) -->
+        <!-- Panel (Same ID) -->
         <rect id="panelCarry" x="-20" y="-6" width="40" height="12" rx="2" fill="#20e3b2" opacity="0" filter="url(#softGlow)"/>
       </g>
     </g>
@@ -149,10 +148,10 @@
 </g>
 <!-- ===== end robot ===== -->
       </svg>     
-
-<!-- يسكّر الـ SVG -->
-    </div>              <!-- يسكّر .scene-wrap -->
-          <!-- Legend / Info -->
+<!-- end .scene-wrap -->
+    </div>       
+  
+<!-- Legend / Info -->
 <div class="legend">
   <span class="dot dot-pick"></span> P1 Pick
   <span class="dot dot-over"></span> P2 Over Stand
@@ -160,13 +159,14 @@
   <span class="dot dot-store"></span> P4 Store
   <span style="margin-left:12px">Link lengths: L1=140, L2=120 (sim)</span>
 </div>
-  </div>                <!-- يسكّر .card.scene-card -->
+<!-- end .card.scene-card -->
+</div>                
 
   <!-- RIGHT: Controls + LEDs -->
 <div class="card card--controls">
-    <h2>Controls</h2>
+    <h2>Control Panel</h2>
 
-    <!-- عدّاد السيكلز + الحالة -->
+    <!-- Cycles and Status -->
   <div class="legend" style="margin-bottom:8px">
     <span class="badge"><strong>Cycles:</strong>&nbsp;<span id="cyclesDone">0</span></span>
     <span class="badge"><strong>Current:</strong>&nbsp;<span id="currentCycle">1</span></span>
@@ -174,12 +174,12 @@
   </div>
 
     <div class="controls">
-      <button id="btnRobot"  class="btn-robot"  type="button">RobotAt = 0</button>
-      <button id="btnSensor" class="btn-sensor" type="button">Sensor = 0</button>
+      <button id="btnRobot"  class="btn-robot"  type="button">R. Target = 0</button>
+      <button id="btnSensor" class="btn-sensor" type="button">T. Sensor = 0</button>
       <button id="btnAuto"   class="btn-auto"   type="button">Auto Cycle</button>
       <button id="btnStop"   class="btn-stop"   type="button" disabled>Stop</button>
     </div>
-    <p class="hint">• في وضع <b>Auto</b> الروبوت يتحرّك P1→P2→P3 ويعمل Gripper تلقائيًا.<br/>• الأزرار RobotAt/Sensor للتجربة اليدوية (Ready يطلق السيكونس تلقائيًا).</p>
+    <p class="hint">• Auto Cycle for the <b>Auto</b> mode P1 -> P2 -> P3 -> P4 .<br/>•R. Target / T. Sensor for the <b>Manual</b> mode .</p>
 
     <h2 style="margin-top:16px">Status LEDs</h2>
     <div class="row"><div id="led_robot" class="led"></div><div class="label">Robot At_Target</div></div>
