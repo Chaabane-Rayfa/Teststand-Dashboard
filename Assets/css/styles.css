@@ -56,7 +56,7 @@ header{
 }
 .card h2::before{
   content:""; width:10px; height:10px; border-radius:50%;
-  background:linear-gradient(135deg,#D9D2E9,#EAD1DC);
+  background:linear-gradient(135deg,#C90076,#EAD1DC);
   box-shadow:0 0 8px rgba(58,160,255,.85), 0 0 12px rgba(32,227,178,.7);
 }
 
