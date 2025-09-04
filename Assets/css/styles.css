@@ -9,10 +9,10 @@
   --btn-green:#10b981; --btn-red:#ef4444;
 
   /* New: scene scaling + lighter sections */
-  --scene-scale: 1.22;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
-  --section-bg-1: rgba(255,255,255,.08);
-  --section-bg-2: rgba(255,255,255,.04);
-  --section-brd:  rgba(255,255,255,.16);
+  --scene-scale: 1.25;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
+  --section-bg-1: rgba(232,228,242,.08);
+  --section-bg-2: rgba(232,228,242,.04);
+  --section-brd:  rgba(232,228,242,.16);
 }
 
 /* ---------- 2) Base ---------- */
@@ -24,13 +24,13 @@ body{
   background:
     radial-gradient(1200px 600px at 75% -10%, rgba(58,160,255,.20), transparent 60%),
     radial-gradient(900px 500px at 10% 110%, rgba(32,227,178,.18), transparent 60%),
-    linear-gradient(135deg, #523E85 20%, #493777 45%, #5B4B84 100%) !important;
+    linear-gradient(135deg, #523E85 20%, #534A6E 45%, #40365E 60%) !important;
 }
 body::before{
   content:""; position:fixed; inset:0; pointer-events:none;
   background:
-    linear-gradient(transparent 96%, rgba(72,65,93,.06) 96%) 0 0/100% 22px,
-    linear-gradient(90deg, transparent 96%, rgba(72,65,93,.06) 96%) 0 0/22px 100%;
+    linear-gradient(transparent 96%, rgba(50,37,81,.05) 96%) 0 0/100% 22px,
+    linear-gradient(90deg, transparent 96%, rgba(50,37,81,,.05) 96%) 0 0/22px 100%;
   opacity:.05;
 }
 body::after{
@@ -39,9 +39,9 @@ body::after{
 }
 
 header{
-  background:linear-gradient(180deg,#2B2045 50%, #483674 100%) !important;
-  color:var(--text); padding:16px 24px;
-  font-size:18px; font-weight:700;
+  background:linear-gradient(180deg,#403657 30%, #241B3A 100%) !important;
+  color:var(--text); padding:18px 26px;
+  font-size:22px; font-weight:700;
   border-bottom:1px solid var(--border);
   box-shadow:0 6px 18px rgba(0,0,0,.35);
 }
@@ -56,7 +56,7 @@ header{
 }
 .card h2::before{
   content:""; width:10px; height:10px; border-radius:50%;
-  background:linear-gradient(135deg,#3aa0ff,#20e3b2);
+  background:linear-gradient(135deg,#D9D2E9,#EAD1DC);
   box-shadow:0 0 8px rgba(58,160,255,.85), 0 0 12px rgba(32,227,178,.7);
 }
 
@@ -99,7 +99,7 @@ main{
 .card{
   position:relative; overflow:hidden;
   background: rgba(20, 28, 44, .72);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
   border-radius:16px;
   border:1px solid rgba(255,255,255,.06);
   box-shadow: 0 6px 24px rgba(0,0,0,0.5);
@@ -132,7 +132,7 @@ main{
   box-shadow: inset 0 0 50px rgba(0,0,0,.55), 0 12px 36px rgba(0,0,0,.65);
 }
 .card--log h2{
-  color:#ffffff; opacity:1; letter-spacing:.5px;
+  color:#ffffff; opacity:20; letter-spacing:.5px;
   text-shadow:0 3px 12px rgba(0,0,0,.65);
 }
 
