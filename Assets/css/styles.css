@@ -325,3 +325,35 @@ button:active{ transform: translateY(1px); }
   .scene-wrap svg{ transform:none; }
   .card--controls .panel-grid{ overflow:visible; }
 }
+/* ===== FIX: keep aurora behind UI, not over buttons/LEDs ===== */
+
+/* حطّ الخلفية البنفسجية الثابتة على عنصر html مش body */
+html{
+  background:
+    radial-gradient(1200px 700px at 68% -12%, rgba(103,78,167,.22), transparent 60%),
+    radial-gradient(1000px 600px at 10% 110%, rgba(196, 93, 255, .18), transparent 60%),
+    linear-gradient(135deg, #1a1430 0%, #211a3e 45%, #2b2153 100%) !important;
+}
+
+/* خلّي body شفّاف ويكوّن stacking context خاص */
+body{
+  background: transparent !important;   /* مهم: باش نشوف اللي تحتو (html) */
+  position: relative;
+  isolation: isolate;                   /* يضمن ::after يبقى داخل body فقط */
+}
+
+/* الشبكة الخفيفة تبقى فوق الخلفية وتحت المحتوى */
+body::before{
+  z-index: -1;                          /* تحت المحتوى */
+}
+
+/* طبقة الـAurora: تحت المحتوى، فوق خلفية html */
+body::after{
+  z-index: -1;                          /* رجّعها تحت المحتوى */
+  mix-blend-mode: screen;               /* ينفع مع الخلفية فقط */
+  opacity: .9;
+}
+
+/* لو تبقى أي تغبيش على الأزرار/LEDs من وراثة blending بالخطأ، نضمن عزل الكروت */
+.card{ isolation: isolate; }            /* الكارت يعزل طبقاته الداخلية عن المزج */
+
