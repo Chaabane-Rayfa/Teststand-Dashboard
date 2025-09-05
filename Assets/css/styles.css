@@ -267,7 +267,7 @@ button:active{ transform: translateY(1px); }
 }
 /* Mobile size */
 @media (max-width:1024px){
-  :root{ --scene-offset-y: 12px; }
+  .scene-wrap svg{ transform: scale(1.06); }
 }
 
 /* Grid overlay خفيف */
