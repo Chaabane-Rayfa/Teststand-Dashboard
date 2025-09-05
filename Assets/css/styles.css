@@ -13,7 +13,7 @@
   --section-bg-1: rgba(232,228,242,.08);
   --section-bg-2: rgba(232,228,242,.04);
   --section-brd:  rgba(232,228,242,.16);
-   --scene-offset-y: 100px;  /* بدّلها على راحتك (10–30px) */
+
 }
 
 /* ---------- 2) Base ---------- */
@@ -262,7 +262,7 @@ button:active{ transform: translateY(1px); }
 }
 /* كبّر محتوى الـSVG بدون تغيير حجم الكرت */
 .scene-wrap svg{
-  transform: scale(var(--scene-scale)) translateY(var(--scene-offset-y));
+  transform: scale(var(--scene-scale)) translateY(-6px); 
   transform-origin: 50% 42%;
 }
 /* Mobile size */
@@ -278,30 +278,12 @@ button:active{ transform: translateY(1px); }
 }
 
 /* Legend / badges */
- /*.legend{
+ .legend{
   display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;
   font-size:14px; font-weight:600; color:#d7e9ff;
   text-shadow: 0 1px 0 rgba(0,0,0,.35);
-}*/
-.legend{
-  justify-content: center !important;
 }
 
-/* وإذا تحبها فعلاً في "وسط الكارت" (عمودياً وأفقياً) فعّل الكلاس هذا في الـHTML:
-   <div class="legend legend--center"> ... </div>
-*/
-.legend.legend--center{
-  position: absolute;
-  top: 80%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: max-content;
-  gap: 12px;
-  /* اختياري: خلفية خفيفة باش تبان فوق السين */
-  background: linear-gradient(180deg, rgba(18,36,58,.65), rgba(12,24,40,.45));
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: 999px;
-  padding: 6px 12px;
-}
 .badge{
   display:inline-flex; align-items:center; gap:6px;
   background:linear-gradient(180deg,#12243a,#0c1828);
