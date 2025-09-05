@@ -9,7 +9,7 @@
   --btn-green:#10b981; --btn-red:#ef4444;
 
   /* New: scene scaling + lighter sections */
-  --scene-scale: 1.18;                 /* يكبّر محتوى الـSVG داخل نفس الكرت */
+  --scene-scale: 1.18;                 /* Scale size */
   --section-bg-1: rgba(232,228,242,.08);
   --section-bg-2: rgba(232,228,242,.04);
   --section-brd:  rgba(232,228,242,.16);
@@ -88,7 +88,7 @@ main{
   transform-origin: center top;
   will-change: transform, box-shadow, filter;
 }
-/* كي تقرّب للسيكشن، تكبر وتطلع شوية وتزيد الإضاءة */
+/* grow and motion of the cards commands and status*/
 .card--controls .panel-section:hover,
 .card--controls .panel-section:focus-within{
   transform: translateY(-4px) scale(1.03);
@@ -114,7 +114,7 @@ main{
   opacity:.9;
 }
 
-/* احترام تفضيل تقليل الحركة */
+/* motion reduce */
 @media (prefers-reduced-motion: reduce){
   .card--controls .panel-section:hover,
   .card--controls .panel-section:focus-within{
@@ -304,7 +304,7 @@ button:active{ transform: translateY(1px); }
 #svg circle[fill="#8e44ad"]{ fill:#c6a4ff !important; }
 #svg circle[fill="#16a085"]{ fill:#3ff1d3 !important; }
 #svg circle[fill="#c0392b"]{ fill:#ff7d7d !important; filter:url(#softGlow); }
-/* panels: ألوان أوضح + توهج */
+
 /* خفّض توهج البانيلات */
 #panelStack, #panelStand, #panelP4{
   fill:#25e7c0 !important;
@@ -312,7 +312,7 @@ button:active{ transform: translateY(1px); }
 }
 #panelCarry{
   fill:#25e7c0 !important;
-  filter:url(#softGlowLite) !important;  /* توهج خفيف وقت شايلها الروبوت */
+  filter:url(#softGlowLite) !important;  /* small glow when it's in the gripper */
 }
 /* ---------- 7) Accessibility / Motion ---------- */
 @media (prefers-reduced-motion: reduce){
@@ -349,5 +349,5 @@ button:active{ transform: translateY(1px); }
 }
 
 /* اختيارياً: زِد gap باش الhover ما يلمس الحدود */
-.panel-grid{ gap: 16px !important; }
+.panel-grid{ gap: 12px !important; }
 
