@@ -261,7 +261,7 @@ button:active{ transform: translateY(1px); }
 /* كبّر محتوى الـSVG بدون تغيير حجم الكرت */
 .scene-wrap svg{
   transform: scale(var(--scene-scale)) translateY(var(--scene-offset-y));
-  transform-origin: 50% 42%;
+  transform-origin: 60% 52%;
 }
 /* Mobile size */
 @media (max-width:1024px){
@@ -335,12 +335,6 @@ button:active{ transform: translateY(1px); }
     grid-template-columns: 0.88fr 1.12fr !important;
   }
 }
-
-/* === Shrink scene content a touch so it breathes */
-:root{
-  --scene-scale: 1.18; /* كان ~1.25: صغّرنا شوية */
-}
-
 /* === Let Commands/Status grow on hover without being clipped */
 .card--controls{ overflow: visible !important; }
 .card--controls .panel-grid{ overflow: visible !important; }
