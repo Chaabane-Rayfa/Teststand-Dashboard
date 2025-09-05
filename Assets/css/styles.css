@@ -13,6 +13,7 @@
   --section-bg-1: rgba(232,228,242,.08);
   --section-bg-2: rgba(232,228,242,.04);
   --section-brd:  rgba(232,228,242,.16);
+   --scene-offset-y: 22px;  /* بدّلها على راحتك (10–30px) */
 }
 
 /* ---------- 2) Base ---------- */
@@ -259,11 +260,12 @@ button:active{ transform: translateY(1px); }
 }
 /* كبّر محتوى الـSVG بدون تغيير حجم الكرت */
 .scene-wrap svg{
-  transform: scale(var(--scene-scale)) translateY(-6px);
+  transform: scale(var(--scene-scale)) translateY(var(--scene-offset-y));
   transform-origin: 50% 42%;
 }
+/* Mobile size */
 @media (max-width:1024px){
-  .scene-wrap svg{ transform: scale(1.06); }
+  :root{ --scene-offset-y: 12px; }
 }
 
 /* Grid overlay خفيف */
