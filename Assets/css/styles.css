@@ -185,3 +185,95 @@ button:hover{ transform:translateY(-1px); box-shadow:0 8px 26px rgba(0,0,0,.45),
   .stage{ order:0 }
   .stage .scene-wrap{ height:min(58vh,520px) }
 }
+/* ====== أساس الخلفية والنيون (كما قبل) ====== */
+:root{ --bg:#070b14; --panel:rgba(14,26,46,.52); --stroke:#223458; --txt:#eaf4ff; --muted:#8aa0c5;
+  --c-cyan:#39d0ff; --c-violet:#7a5cff; --c-pink:#ff2bd6; --c-green:#00e18b; --c-yellow:#ffd166; --c-red:#ff4d6d; --r:18px;}
+*{box-sizing:border-box} html,body{height:100%}
+body{ margin:0; color:var(--txt);
+  background: radial-gradient(1200px 700px at 50% 110%, rgba(58,0,95,.35), transparent 60%),
+             radial-gradient(1000px 500px at 50% 100%, rgba(0,153,255,.22), transparent 62%), var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; overflow-x:hidden; }
+header{ position:sticky; top:0; z-index:20; padding:14px 22px; font-weight:800; background:linear-gradient(180deg, rgba(7,11,20,.82), rgba(7,11,20,.45)); border-bottom:1px solid rgba(255,255,255,.06) }
+.bg-grid{ position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image: radial-gradient(circle at 50% 120%, rgba(57,208,255,.2), transparent 40%),
+                    linear-gradient(transparent 95%, rgba(57,208,255,.14) 96%),
+                    linear-gradient(90deg, transparent 95%, rgba(122,92,255,.12) 96%);
+  background-size:100% 100%, 40px 40px, 40px 40px; mix-blend-mode:screen; }
+.bg-beams{ position:fixed; inset:0; z-index:0; display:flex; justify-content:center; gap:16% }
+.bg-beams span{ width:2px; height:72%; background:linear-gradient(180deg, rgba(255,43,214,0), rgba(255,43,214,.45), rgba(57,208,255,0)); filter:blur(.5px); animation:beam 3.6s ease-in-out infinite }
+.bg-beams span:nth-child(2){animation-delay:.6s} .bg-beams span:nth-child(3){animation-delay:1.2s}
+@keyframes beam{0%,100%{transform:translateY(-8%);opacity:.7}50%{transform:translateY(8%);opacity:1}}
+
+/* ====== الحاوية ====== */
+.shell{ position:relative; padding:16px; }
+
+/* ====== STAGE: حرّة بلا card ====== */
+.stage.free{
+  background:transparent; border:none; box-shadow:none; border-radius:0; overflow:visible;
+}
+.stage .stage-heading{
+  margin:0 0 6px; padding:0 8px; font-weight:800;
+  text-shadow:0 0 20px rgba(122,92,255,.35); letter-spacing:.02em;
+}
+.scene-wrap{ position:relative; height:min(64vh, 560px); min-height:460px; display:grid; place-items:center; }
+#svg{ width:min(1100px, 86vw); height:100%; filter: drop-shadow(0 0 18px rgba(122,92,255,.22)); z-index:2 }
+
+/* Hologram podium + reflection */
+.holo-base{ position:absolute; bottom:16px; left:50%; transform:translateX(-50%); width:58%; height:32px; border-radius:999px;
+  background: radial-gradient(100% 90% at 50% 50%, rgba(57,208,255,.32), rgba(122,92,255,.22) 40%, rgba(255,43,214,.18) 60%, transparent 70%),
+              rgba(12,24,44,.8);
+  box-shadow:0 0 30px 6px rgba(57,208,255,.2), 0 0 64px 12px rgba(122,92,255,.18), 0 60px 120px rgba(255,43,214,.08);
+  border:1px solid rgba(64,98,168,.65);}
+.holo-ring{ position:absolute; bottom:32px; left:50%; transform:translateX(-50%); width:64%; height:6px; border-radius:99px;
+  background:radial-gradient(100% 120% at 50% 50%, rgba(0,255,255,.5), rgba(0,0,0,0) 60%); filter:blur(8px);}
+.scene-reflection{ position:absolute; left:18%; right:18%; bottom:-18px; height:24px; border-radius:999px;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(57,208,255,.35), rgba(255,43,214,.2), transparent 70%); filter: blur(12px); opacity:.7; pointer-events:none;}
+.legend{ padding:8px 14px 14px; color:#cfe3ff; display:flex; gap:14px; align-items:center; flex-wrap:wrap }
+.dot{ width:10px; height:10px; border-radius:50%; display:inline-block; box-shadow:0 0 10px currentColor }
+.dot-pick{ background:#8e44ad; color:#8e44ad } .dot-over{ background:#16a085; color:#16a085 }
+.dot-place{ background:#c0392b; color:#c0392b } .dot-store{ background:#2980b9; color:#2980b9 }
+
+/* ====== PANELS: overlay يمين ويسار ويقرّبوا للروبوت ====== */
+.panel{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:360px; background:rgba(14,26,46,.55); border:1px solid var(--stroke); border-radius:var(--r);
+  backdrop-filter: blur(12px) saturate(140%);
+  box-shadow:0 0 0 1px rgba(58,107,255,.18) inset, 0 0 30px 4px rgba(57,208,255,.08), 0 30px 80px rgba(0,0,0,.45);
+  z-index:5; /* فوق الروبوت */
+}
+.panel-left{ left:24px }
+.panel-right{ right:24px }
+.panel-title{ margin:0; padding:14px 16px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.06);
+  background:linear-gradient(90deg, rgba(57,208,255,.18), transparent 50%), linear-gradient(90deg, rgba(122,92,255,.14), transparent 80%);}
+.panel-section{ padding:12px }
+.controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:10px 0 }
+.controls h4{ margin:0 8px 0 0; color:#8fb2ff; font-weight:700 }
+.hint{ margin:4px 0 0; color:var(--muted); font-size:13px }
+button{ border-radius:14px; padding:10px 14px; border:1px solid #2d3f64; color:#eaf4ff; background:#0b1a2d; cursor:pointer; font-weight:700;
+  box-shadow:0 0 14px rgba(0,0,0,.45), 0 0 20px rgba(57,208,255,.05) inset; transition:transform .06s, box-shadow .2s, background .2s }
+button:hover{ transform:translateY(-1px); box-shadow:0 8px 26px rgba(0,0,0,.45), 0 0 24px rgba(122,92,255,.18) inset }
+.btn-auto{ border-color:#7a5cff66 } .btn-stop{ border-color:#ff2bd666 } .btn-robot,.btn-sensor{ border-color:#39d0ff66 }
+
+/* Status extras */
+.row{ display:flex; align-items:center; gap:10px; margin:8px 0 } .label{ color:#d4e6ff }
+.led{ width:14px; height:14px; border-radius:50%; border:1px solid #2a3e66; background:#0b1a2d; box-shadow:0 0 12px rgba(0,0,0,.4) inset }
+.led.on-ok{ background:#00e18b; box-shadow:0 0 8px rgba(0,225,139,.8) } .led.on-warn{ background:#ffd166; box-shadow:0 0 8px rgba(255,209,102,.8) }
+.led.on-err{ background:#ff4d6d; box-shadow:0 0 8px rgba(255,77,109,.8) }
+.progress{ height:12px; background:#0b1a2d; border:1px solid #273a62; border-radius:999px; overflow:hidden; margin:-2px 0 6px; box-shadow:0 0 16px rgba(57,208,255,.06) inset }
+.bar{ height:100%; width:0%; background:linear-gradient(90deg, var(--c-cyan), var(--c-violet), var(--c-pink)); box-shadow:0 0 18px rgba(122,92,255,.45);
+  display:flex; align-items:center; justify-content:center; color:#04121f; font-weight:800; letter-spacing:.04em }
+
+/* ====== EVENT LOG (card لتحت) ====== */
+.log-card{ position:relative; margin: 12px 16px 18px; background:var(--panel); border:1px solid var(--stroke); border-radius:var(--r);
+  backdrop-filter: blur(12px) saturate(140%); box-shadow:0 0 0 1px rgba(58,107,255,.18) inset, 0 0 30px 4px rgba(57,208,255,.08), 0 30px 80px rgba(0,0,0,.45);}
+.log-card .panel-title{ margin:0; padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.06); background:linear-gradient(90deg, rgba(57,208,255,.18), transparent 50%), linear-gradient(90deg, rgba(122,92,255,.14), transparent 80%)}
+.log-card #log{ min-height:120px; max-height:220px; overflow:auto; padding:12px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; background: rgba(10,20,36,.55); }
+.log-card .log-reflection{ position:absolute; left:10%; right:10%; bottom:-20px; height:26px; border-radius:999px; background: radial-gradient(60% 100% at 50% 0%, rgba(57,208,255,.35), rgba(255,43,214,.2), transparent 70%); filter: blur(12px); opacity:.85; pointer-events:none }
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 1200px){ .panel{ width:320px } }
+@media (max-width: 980px){
+  .panel{ position:static; transform:none; width:auto; margin: 10px 16px }
+  .shell{ padding: 10px 0 }
+  .scene-wrap{ height:min(58vh,520px) }
+}
