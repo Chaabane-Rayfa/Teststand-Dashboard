@@ -8,15 +8,101 @@
   <link rel="icon" type="image/png" href="Assets/7056558.png">
 </head>
 <body>
-  <!-- Neon background -->
   <div class="bg-grid"></div>
   <div class="bg-beams"><span></span><span></span><span></span></div>
 
   <header>🦾 Automated Cafe 4 Teststand</header>
 
-  <!-- 3-column layout: left=commands / center=robot / right=status -->
+  <!-- الحاوية الرئيسية: الروبوت حرّ + البانلات overlay -->
   <main class="shell">
-    <!-- LEFT: Commands -->
+
+    <!-- CENTER: Robot (FREE, no card) -->
+    <section class="stage free">
+      <h2 class="stage-heading">Doosan &amp; Teststand (Simulation)</h2>
+
+      <div class="scene-wrap">
+        <div class="holo-base"></div>
+        <div class="holo-ring"></div>
+
+        <!-- نفس SVG متاعك بالضبط -->
+        <svg id="svg" viewBox="0 0 800 450" width="100%" height="100%">
+          <rect x="0" y="350" width="800" height="100" fill="#e8edf5"/>
+          <rect x="300" y="280" width="200" height="70" rx="8" fill="#ccd9ea" stroke="#9cb5d6"/>
+          <rect x="340" y="260" width="120" height="20" rx="4" fill="#b7c8e1"/>
+
+          <rect id="panelStack" x="532" y="274" width="36" height="12" rx="2" fill="#2ecc71" opacity="1"/>
+          <rect id="panelStand" x="370" y="274" width="60" height="12" rx="2" fill="#2ecc71" opacity="0"/>
+          <rect x="510" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
+          <rect x="520" y="280" width="60" height="16" rx="3" fill="#bfcde2"/>
+          <rect x="210" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
+          <rect x="220" y="290" width="60" height="16" rx="3" fill="#bfcde2"/>
+          <rect id="panelP4" x="232" y="292" width="36" height="12" rx="2" fill="#2ecc71" opacity="0"/>
+
+          <circle cx="550" cy="280" r="5" fill="#8e44ad"/>
+          <circle cx="400" cy="240" r="5" fill="#16a085"/>
+          <circle cx="400" cy="280" r="5" fill="#c0392b"/>
+          <circle cx="250" cy="280" r="5" fill="#2980b9"/>
+
+          <defs>
+            <linearGradient id="armMetal" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0"  stop-color="#0e1722"/><stop offset="0.5" stop-color="#223041"/><stop offset="1"  stop-color="#0c131b"/>
+            </linearGradient>
+            <linearGradient id="armEdge" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="rgba(255,255,255,.25)"/><stop offset="1" stop-color="rgba(255,255,255,0)"/>
+            </linearGradient>
+            <linearGradient id="gripMetal" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0"  stop-color="#7b8da0"/><stop offset="1"  stop-color="#9fb0c2"/>
+            </linearGradient>
+            <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".15"/>
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".10"/>
+            </filter>
+            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blurBase"/>
+              <feColorMatrix in="blurBase" type="matrix" values="0 0 0 0 0  0 1.6 0 0 0  0 0 0 0 0  0 0 0 1 0" result="greenCore"/>
+              <feGaussianBlur in="greenCore" stdDeviation="15" result="haloOuter"/>
+              <feFlood flood-color="#26e6c9" flood-opacity="0.85" result="flood"/>
+              <feComposite in="flood" in2="haloOuter" operator="in" result="tintedHalo"/>
+              <feMerge><feMergeNode in="tintedHalo"/><feMergeNode in="greenCore"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          <g id="robot" transform="translate(400,340)">
+            <g filter="url(#softShadow)"><rect x="-32" y="6" width="64" height="22" rx="8" fill="#3a4b61"/><rect x="-22" y="0" width="44" height="18" rx="8" fill="#253447"/></g>
+            <g id="link1" transform="rotate(-60)">
+              <g filter="url(#softShadow)"><rect x="0" y="-13" width="140" height="26" rx="13" fill="url(#armMetal)"/><rect x="0" y="-13" width="140" height="10" rx="10" fill="url(#armEdge)" opacity=".35"/></g>
+              <g><circle cx="0" cy="0" r="13" fill="#0e1722" stroke="#3a4b61" stroke-width="3"/><circle cx="0" cy="0" r="5"  fill="#7a90a8"/></g>
+              <g id="link2" transform="translate(140,0) rotate(40)">
+                <g filter="url(#softShadow)"><rect x="0" y="-11" width="120" height="22" rx="11" fill="url(#armMetal)"/><rect x="0" y="-11" width="120" height="8"  rx="8"  fill="url(#armEdge)" opacity=".35"/></g>
+                <g><circle cx="0" cy="0" r="11" fill="#0e1722" stroke="#3a4b61" stroke-width="3"/><circle cx="0" cy="0" r="4"  fill="#7a90a8"/></g>
+                <g id="tool" transform="translate(120,0)">
+                  <g filter="url(#softShadow)">
+                    <rect x="-12" y="-18" width="24" height="36" rx="6" fill="url(#gripMetal)" stroke="#6b7c8e" stroke-width="1.5"/>
+                    <circle cx="-6" cy="-10" r="1.4" fill="#4a5b6b"/><circle cx="6" cy="-10" r="1.4" fill="#4a5b6b"/>
+                    <circle cx="-6" cy="10" r="1.4" fill="#4a5b6b"/><circle cx="6" cy="10" r="1.4" fill="#4a5b6b"/>
+                  </g>
+                  <rect id="fingerL" x="-18" y="-4" width="8" height="8" rx="2" fill="#9fb0c2" stroke="#6b7c8e" stroke-width="1"/>
+                  <rect id="fingerR" x="10"  y="-4" width="8" height="8" rx="2" fill="#9fb0c2" stroke="#6b7c8e" stroke-width="1"/>
+                  <rect id="panelCarry" x="-20" y="-6" width="40" height="12" rx="2" fill="#20e3b2" opacity="0" filter="url(#softGlow)"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+
+        <div class="legend">
+          <span class="dot dot-pick"></span> P1 Pick
+          <span class="dot dot-over"></span> P2 Over Stand
+          <span class="dot dot-place"></span> P3 Place
+          <span class="dot dot-store"></span> P4 Store
+          <span style="margin-left:12px">Link lengths: L1=140, L2=120 (sim)</span>
+        </div>
+
+        <div class="scene-reflection"></div>
+      </div>
+    </section>
+
+    <!-- LEFT CARD: Commands (overlay) -->
     <aside class="panel panel-left">
       <h2 class="panel-title">Commands</h2>
       <section class="panel-section">
@@ -31,153 +117,13 @@
           <button id="btnStop"   class="btn-stop"   type="button" disabled>Stop</button>
           <button id="btnReset"  class="btn-sensor" type="button">Reset</button>
         </div>
-        <p class="hint">
-          • <b>Auto</b> mode: P1 → P2 → P3 → P4.<br/>
-          • R.Target / T.Sensor for <b>manual</b> tests.
-        </p>
+        <p class="hint">• <b>Auto</b> mode: P1 → P2 → P3 → P4.<br/>• R.Target / T.Sensor for <b>manual</b> tests.</p>
       </section>
     </aside>
 
-    <!-- CENTER: Robot stage -->
-    <section class="stage">
-      <h2 class="stage-title">Doosan &amp; Teststand (Simulation)</h2>
-
-      <div class="scene-wrap">
-        <!-- hologram podium -->
-        <div class="holo-base"></div>
-        <div class="holo-ring"></div>
-
-        <!-- your SVG exactly as before -->
-        <svg id="svg" viewBox="0 0 800 450" width="100%" height="100%">
-          <!-- Floor -->
-          <rect x="0" y="350" width="800" height="100" fill="#e8edf5"/>
-
-          <!-- Teststand (centered) -->
-          <rect x="300" y="280" width="200" height="70" rx="8" fill="#ccd9ea" stroke="#9cb5d6"/>
-          <rect x="340" y="260" width="120" height="20" rx="4" fill="#b7c8e1"/>
-
-          <!-- Panels -->
-          <rect id="panelStack" x="532" y="274" width="36" height="12" rx="2" fill="#2ecc71" opacity="1"/>
-          <rect id="panelStand" x="370" y="274" width="60" height="12" rx="2" fill="#2ecc71" opacity="0"/>
-          <rect x="510" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
-          <rect x="520" y="280" width="60" height="16" rx="3" fill="#bfcde2"/>
-          <rect x="210" y="300" width="80" height="20" rx="4" fill="#dfe6ee" stroke="#c9d3e3"/>
-          <rect x="220" y="290" width="60" height="16" rx="3" fill="#bfcde2"/>
-          <rect id="panelP4" x="232" y="292" width="36" height="12" rx="2" fill="#2ecc71" opacity="0"/>
-
-          <!-- Markers -->
-          <circle cx="550" cy="280" r="5" fill="#8e44ad"/><!-- P1 -->
-          <circle cx="400" cy="240" r="5" fill="#16a085"/><!-- P2 -->
-          <circle cx="400" cy="280" r="5" fill="#c0392b"/><!-- P3 -->
-          <circle cx="250" cy="280" r="5" fill="#2980b9"/><!-- P4 -->
-
-          <!-- ===== Robot ===== -->
-          <defs>
-            <linearGradient id="armMetal" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0"  stop-color="#0e1722"/>
-              <stop offset="0.5" stop-color="#223041"/>
-              <stop offset="1"  stop-color="#0c131b"/>
-            </linearGradient>
-            <linearGradient id="armEdge" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="rgba(255,255,255,.25)"/>
-              <stop offset="1" stop-color="rgba(255,255,255,0)"/>
-            </linearGradient>
-            <linearGradient id="gripMetal" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0"  stop-color="#7b8da0"/>
-              <stop offset="1"  stop-color="#9fb0c2"/>
-            </linearGradient>
-            <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".15"/>
-              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".10"/>
-            </filter>
-            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blurBase"/>
-              <feColorMatrix in="blurBase" type="matrix"
-                values="0 0 0 0 0
-                        0 1.6 0 0 0
-                        0 0 0 0 0
-                        0 0 0 1 0" result="greenCore"/>
-              <feGaussianBlur in="greenCore" stdDeviation="15" result="haloOuter"/>
-              <feFlood flood-color="#26e6c9" flood-opacity="0.85" result="flood"/>
-              <feComposite in="flood" in2="haloOuter" operator="in" result="tintedHalo"/>
-              <feMerge>
-                <feMergeNode in="tintedHalo"/>
-                <feMergeNode in="greenCore"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-
-          <!-- Robot base -->
-          <g id="robot" transform="translate(400,340)">
-            <g filter="url(#softShadow)">
-              <rect x="-32" y="6" width="64" height="22" rx="8" fill="#3a4b61"/>
-              <rect x="-22" y="0" width="44" height="18" rx="8" fill="#253447"/>
-            </g>
-
-            <!-- Link1 -->
-            <g id="link1" transform="rotate(-60)">
-              <g filter="url(#softShadow)">
-                <rect x="0" y="-13" width="140" height="26" rx="13" fill="url(#armMetal)"/>
-                <rect x="0" y="-13" width="140" height="10" rx="10" fill="url(#armEdge)" opacity=".35"/>
-              </g>
-              <g>
-                <circle cx="0" cy="0" r="13" fill="#0e1722" stroke="#3a4b61" stroke-width="3"/>
-                <circle cx="0" cy="0" r="5"  fill="#7a90a8"/>
-              </g>
-
-              <!-- Link2 -->
-              <g id="link2" transform="translate(140,0) rotate(40)">
-                <g filter="url(#softShadow)">
-                  <rect x="0" y="-11" width="120" height="22" rx="11" fill="url(#armMetal)"/>
-                  <rect x="0" y="-11" width="120" height="8"  rx="8"  fill="url(#armEdge)" opacity=".35"/>
-                </g>
-                <g>
-                  <circle cx="0" cy="0" r="11" fill="#0e1722" stroke="#3a4b61" stroke-width="3"/>
-                  <circle cx="0" cy="0" r="4"  fill="#7a90a8"/>
-                </g>
-
-                <!-- Tool -->
-                <g id="tool" transform="translate(120,0)">
-                  <g filter="url(#softShadow)">
-                    <rect x="-12" y="-18" width="24" height="36" rx="6" fill="url(#gripMetal)" stroke="#6b7c8e" stroke-width="1.5"/>
-                    <circle cx="-6" cy="-10" r="1.4" fill="#4a5b6b"/>
-                    <circle cx=" 6" cy="-10" r="1.4" fill="#4a5b6b"/>
-                    <circle cx="-6" cy=" 10" r="1.4" fill="#4a5b6b"/>
-                    <circle cx=" 6" cy=" 10" r="1.4" fill="#4a5b6b"/>
-                  </g>
-
-                  <!-- Gripper Fingers -->
-                  <rect id="fingerL" x="-18" y="-4" width="8" height="8" rx="2" fill="#9fb0c2" stroke="#6b7c8e" stroke-width="1"/>
-                  <rect id="fingerR" x="10"  y="-4" width="8" height="8" rx="2" fill="#9fb0c2" stroke="#6b7c8e" stroke-width="1"/>
-
-                  <!-- Carried Panel -->
-                  <rect id="panelCarry" x="-20" y="-6" width="40" height="12" rx="2" fill="#20e3b2" opacity="0" filter="url(#softGlow)"/>
-                </g>
-              </g>
-            </g>
-          </g>
-          <!-- ===== end robot ===== -->
-        </svg>
-
-        <!-- legend -->
-        <div class="legend">
-          <span class="dot dot-pick"></span> P1 Pick
-          <span class="dot dot-over"></span> P2 Over Stand
-          <span class="dot dot-place"></span> P3 Place
-          <span class="dot dot-store"></span> P4 Store
-          <span style="margin-left:12px">Link lengths: L1=140, L2=120 (sim)</span>
-        </div>
-
-        <!-- reflection glow -->
-        <div class="scene-reflection"></div>
-      </div>
-    </section>
-
-    <!-- RIGHT: Status -->
+    <!-- RIGHT CARD: Status (overlay) -->
     <aside class="panel panel-right">
       <h2 class="panel-title">Status</h2>
-
       <section class="panel-section">
         <div class="legend compact">
           <span class="badge"><strong>Cycles:</strong>&nbsp;<span id="cyclesDone">0</span></span>
@@ -201,7 +147,7 @@
     </aside>
   </main>
 
-  <!-- BOTTOM: Event Log -->
+  <!-- BOTTOM: Event Log (card) -->
   <section class="log-card">
     <h2 class="panel-title">Event Log</h2>
     <div id="log"></div>
