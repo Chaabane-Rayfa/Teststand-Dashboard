@@ -18,8 +18,7 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0;
-  color:var(--txt);
+  margin:0; color:var(--txt);
   background:
     radial-gradient(1200px 700px at 50% 110%, rgba(58,0,95,.35), transparent 60%),
     radial-gradient(1000px 500px at 50% 100%, rgba(0,153,255,.22), transparent 62%),
@@ -28,16 +27,16 @@ body{
   overflow-x:hidden;
 }
 
-/* header */
+/* Header */
 header{
   position:sticky; top:0; z-index:10;
   padding:14px 22px; font-weight:800; letter-spacing:.02em;
-  background: linear-gradient(180deg, rgba(7,11,20,.8), rgba(7,11,20,.45));
+  background: linear-gradient(180deg, rgba(7,11,20,.82), rgba(7,11,20,.45));
   border-bottom:1px solid rgba(255,255,255,.06);
   text-shadow:0 0 18px rgba(122,92,255,.35);
 }
 
-/* subtle grid & beams (hologram vibe) */
+/* Background neon grid/beams */
 .bg-grid{
   position:fixed; inset:0; z-index:0; pointer-events:none;
   background-image:
@@ -49,7 +48,7 @@ header{
 }
 .bg-beams{ position:fixed; inset:0; z-index:0; display:flex; justify-content:center; gap:16% }
 .bg-beams span{
-  width:2px; height:70%;
+  width:2px; height:72%;
   background:linear-gradient(180deg, rgba(255,43,214,0), rgba(255,43,214,.45), rgba(57,208,255,0));
   filter:blur(.5px); animation:beam 3.6s ease-in-out infinite;
 }
@@ -57,36 +56,42 @@ header{
 .bg-beams span:nth-child(3){animation-delay:1.2s}
 @keyframes beam{0%,100%{transform:translateY(-8%);opacity:.7}50%{transform:translateY(8%);opacity:1}}
 
-/* layout */
-main{
-  display:grid; grid-template-columns: 1.2fr .9fr; gap:18px;
-  padding:18px; position:relative; z-index:1;
+/* 3-column shell */
+.shell{
+  display:grid; grid-template-columns: 360px minmax(600px, 1fr) 360px; gap:16px;
+  padding:16px; position:relative; z-index:1;
 }
-.card{
-  background: var(--panel);
+.panel, .stage, .log-card{
+  background:var(--panel);
   border:1px solid var(--stroke);
-  border-radius: var(--r);
+  border-radius:var(--r);
   backdrop-filter: blur(12px) saturate(140%);
   box-shadow:
     0 0 0 1px rgba(58,107,255,.18) inset,
     0 0 30px 4px rgba(57,208,255,.08),
     0 30px 80px rgba(0,0,0,.45);
 }
-.card h2{
-  margin:0; padding:14px 16px;
-  font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+
+/* Panel look */
+.panel-title{
+  margin:0; padding:14px 16px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
   border-bottom:1px solid rgba(255,255,255,.06);
   background:
     linear-gradient(90deg, rgba(57,208,255,.18), transparent 50%),
     linear-gradient(90deg, rgba(122,92,255,.14), transparent 80%);
 }
+.panel-section{ padding:12px }
+.legend.compact{ display:flex; gap:10px; flex-wrap:wrap; margin:0 0 10px 0 }
 
-/* scene */
-.scene-card{ position:relative; overflow:hidden }
-.scene-wrap{ position:relative; height:min(66vh, 560px); min-height:420px; display:grid; place-items:center; padding:8px }
+/* Stage (center) */
+.stage{ overflow:hidden }
+.stage-title{ composes: panel-title; display:block }
+.stage .scene-wrap{
+  position:relative; height:min(64vh, 560px); min-height:460px; display:grid; place-items:center; padding:8px;
+}
 #svg{ width:90%; height:100%; filter: drop-shadow(0 0 18px rgba(122,92,255,.22)); z-index:2 }
 
-/* hologram podium */
+/* Hologram podium */
 .holo-base{
   position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
   width:58%; height:32px; border-radius:999px;
@@ -102,35 +107,25 @@ main{
   background:radial-gradient(100% 120% at 50% 50%, rgba(0,255,255,.5), rgba(0,0,0,0) 60%);
   filter:blur(8px);
 }
-
-/* scene reflection */
 .scene-reflection{
   position:absolute; left:18%; right:18%; bottom:-18px; height:24px; border-radius:999px;
   background: radial-gradient(60% 100% at 50% 0%, rgba(57,208,255,.35), rgba(255,43,214,.2), transparent 70%);
   filter: blur(12px); opacity:.7; pointer-events:none;
 }
 
-.legend{ padding:10px 14px 16px; color:#cfe3ff; display:flex; gap:14px; align-items:center; flex-wrap:wrap }
+/* Legend for P1..P4 */
+.legend{ padding:8px 14px 14px; color:#cfe3ff; display:flex; gap:14px; align-items:center; flex-wrap:wrap }
 .dot{ width:10px; height:10px; border-radius:50%; display:inline-block; box-shadow:0 0 10px currentColor }
 .dot-pick{ background:#8e44ad; color:#8e44ad }
 .dot-over{ background:#16a085; color:#16a085 }
 .dot-place{ background:#c0392b; color:#c0392b }
 .dot-store{ background:#2980b9; color:#2980b9 }
 
-/* right controls */
-.card--controls .panel-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; padding:12px }
-.panel-section{
-  border:1px solid #273a62; border-radius:14px; padding:12px;
-  background: linear-gradient(180deg, rgba(14,28,50,.6), rgba(9,18,34,.6));
-  box-shadow:0 0 24px rgba(57,208,255,.06) inset;
-}
-.panel-section h3{ margin:0 0 10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#eaf4ff }
+/* Controls + buttons (keep same IDs) */
 .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:10px 0 }
 .controls h4{ margin:0 8px 0 0; color:#8fb2ff; font-weight:700 }
-
 .hint{ margin:4px 0 0; color:var(--muted); font-size:13px }
 
-/* buttons (keep same IDs) */
 button{
   border-radius:14px; padding:10px 14px; border:1px solid #2d3f64; color:#eaf4ff; background:#0b1a2d; cursor:pointer;
   font-weight:700;
@@ -142,7 +137,7 @@ button:hover{ transform:translateY(-1px); box-shadow:0 8px 26px rgba(0,0,0,.45),
 .btn-stop{ border-color:#ff2bd666; }
 .btn-robot,.btn-sensor{ border-color:#39d0ff66; }
 
-/* status rows */
+/* Status rows / LEDs / progress */
 .row{ display:flex; align-items:center; gap:10px; margin:8px 0 }
 .label{ color:#d4e6ff }
 .led{
@@ -163,28 +158,30 @@ button:hover{ transform:translateY(-1px); box-shadow:0 8px 26px rgba(0,0,0,.45),
   box-shadow:0 0 18px rgba(122,92,255,.45);
   display:flex; align-items:center; justify-content:center; color:#04121f; font-weight:800; letter-spacing:.04em;
 }
-.subtle-title{ margin:8px 0 4px; color:#9fc0ff; text-transform:uppercase; letter-spacing:.08em }
 
-/* badges */
-.badge{
-  padding:6px 10px; border-radius:999px; border:1px solid #2a3e66; background:linear-gradient(180deg, rgba(14,28,50,.8), rgba(9,18,34,.8));
+/* Bottom log with reflection */
+.log-card{
+  margin: 8px 16px 18px; position:relative;
 }
-
-/* log bottom */
-.card--log{ position:relative }
-.card--log #log{
-  min-height:120px; max-height:220px; overflow:auto; padding:12px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+.log-card #log{
+  min-height:120px; max-height:220px; overflow:auto; padding:12px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   background: rgba(10,20,36,.55);
   border-top:1px solid rgba(255,255,255,.06);
 }
-.card--log .log-reflection{
+.log-card .log-reflection{
   position:absolute; left:10%; right:10%; bottom:-20px; height:26px; border-radius:999px;
   background: radial-gradient(60% 100% at 50% 0%, rgba(57,208,255,.35), rgba(255,43,214,.2), transparent 70%);
-  filter: blur(12px); opacity:.8; pointer-events:none;
+  filter: blur(12px); opacity:.85; pointer-events:none;
 }
 
-/* responsive */
-@media (max-width: 1080px){
-  main{ grid-template-columns:1fr; }
-  .scene-wrap{ height:min(58vh,520px) }
+/* Responsive */
+@media (max-width: 1180px){
+  .shell{ grid-template-columns: 300px 1fr 300px }
+}
+@media (max-width: 980px){
+  .shell{ grid-template-columns: 1fr; }
+  .panel-left, .panel-right{ order: 1 }
+  .stage{ order:0 }
+  .stage .scene-wrap{ height:min(58vh,520px) }
 }
