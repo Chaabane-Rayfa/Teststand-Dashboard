@@ -128,8 +128,8 @@ header{
     0 0 50px 10px rgba(122,92,255,.12);
   z-index:5; /* فوق الروبوت */
 }
-.panel-left{ left:12px }
-.panel-right{ right:12px }
+.panel-left{ left:8px }
+.panel-right{ right:8px }
 
 .panel-title{
   margin:0; padding:14px 16px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
