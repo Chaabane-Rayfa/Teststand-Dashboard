@@ -349,5 +349,3 @@ button:active{ transform: translateY(1px); }
 
 /* اختيارياً: زِد gap باش الhover ما يلمس الحدود */
 .panel-grid{ gap: 12px !important; }
-
-
