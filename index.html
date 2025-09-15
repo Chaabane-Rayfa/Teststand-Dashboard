@@ -9,10 +9,6 @@
   <link rel="icon" type="image/png" href="Assets/7056558.png">
 </head>
 <body>
-    <!-- Neon background / beams / glow Newwww-->
-  <div class="bg-grid"></div>
-  <div class="bg-beams"><span></span><span></span><span></span></div>
-   <!-- Neon background / beams / glow Newwww-->
 <header>🦾 Automated Cafe 4 Teststand</header>
 
 <main>
@@ -21,11 +17,6 @@
     <h2>Doosan &amp; Teststand (Simulation)</h2>
 
     <div class="scene-wrap">
-
-        <!-- Hologram base & ring (reflection look) Newwww-->
-        <div class="holo-base"></div>
-        <div class="holo-ring"></div>
-        <!-- Hologram base & ring (reflection look) Newwww-->
       
       <!-- Scalable SVG workspace -->
       <svg id="svg" viewBox="0 0 800 450" width="100%" height="100%">
@@ -77,18 +68,18 @@
           </filter>
 
           <!-- Neon Green Glow (strong & clean) -->
-          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blurBase"/>
-            <feColorMatrix in="blurBase" type="matrix"
-              values="0 0 0 0 0
-                      0 1.6 0 0 0
-                      0 0 0 0 0
-                      0 0 0 1 0" result="greenCore"/>
+         <filter id="softGlowLite" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+  <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+  <feColorMatrix in="blur" type="matrix"
+    values="0 0 0 0 0
+            0 1.3 0 0 0
+            0 0 0 0 0
+            0 0 0 1 0" result="tint"/>
             <feGaussianBlur in="greenCore" stdDeviation="15" result="haloOuter"/>
             <feFlood flood-color="#26e6c9" flood-opacity="0.85" result="flood"/>
             <feComposite in="flood" in2="haloOuter" operator="in" result="tintedHalo"/>
             <feMerge>
-              <feMergeNode in="tintedHalo"/>
+              <feMergeNode in="tint"/>
               <feMergeNode in="greenCore"/>
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
