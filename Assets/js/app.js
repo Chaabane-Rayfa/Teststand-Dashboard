@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function log(msg, cls = "log-other") {
     const t = new Date().toLocaleTimeString();
-    $("log").innerHTML = `<div class="${cls}">[${t}] ${msg}</div>` + $("log").innerHTML;
+    $("log") && ($("log").innerHTML = `<div class="${cls}">[${t}] ${msg}</div>` + $("log").innerHTML);
+    console.log(msg);
   }
 
   function refreshCountersUI() {
@@ -62,29 +63,35 @@ document.addEventListener('DOMContentLoaded', () => {
     prevReady = ready;
   }
 
-  // --- Buttons ---
-  $("btnRobot").onclick = () => { setRobotAt(1 - robotAt); refreshLEDs(); };
-  $("btnSensor").onclick = () => { setSensor(1 - sensor); refreshLEDs(); };
-
-  $("btnAuto").onclick = async () => {
-    if (auto) return;
+  // ========= واجهة API داخلية: نستعملها من الزرار أو من الشبكة =========
+  function startRun(){
+    if (auto) return;                 // idempotent
     auto = true; stopFlag = false;
-    $("btnAuto").disabled = true; $("btnStop").disabled = false;
-    $("btnAuto").textContent = stepIdx === 0 ? "Running…" : "Resuming…";
-    try { await runCyclesWithResume(); }
-    finally {
+    if ($('btnAuto')) { $('btnAuto').disabled = true; $('btnStop').disabled = false; $('btnAuto').textContent = stepIdx === 0 ? "Running…" : "Resuming…"; }
+    runCyclesWithResume().finally(()=>{
       auto = false;
-      $("btnAuto").disabled = false;
-      $("btnStop").disabled = true;
-      if (!stopFlag && !hardReset) $("btnAuto").textContent = "Run";
-    }
-  };
+      if ($('btnAuto')) { $('btnAuto').disabled = false; $('btnStop').disabled = true; if (!stopFlag && !hardReset) $('btnAuto').textContent = 'Run'; }
+    });
+  }
 
-  $("btnStop").onclick = () => {
+  function requestStop(){
     if (!auto) return;
     stopFlag = true;
     log("STOP (pause) requested — will hold at a safe point", "log-other");
-  };
+  }
+
+  function requestReset(){
+    hardReset = true;
+    stopFlag = true;     // يوقّف أي حركات/تايمرز جارِية
+    performHardReset();
+    log('System reset requested', 'log-other');
+  }
+
+  // --- Buttons (تبقى تخدم كيف قبل) ---
+  $("btnRobot") && ($("btnRobot").onclick = () => { setRobotAt(1 - robotAt); refreshLEDs(); });
+  $("btnSensor") && ($("btnSensor").onclick = () => { setSensor(1 - sensor); refreshLEDs(); });
+  $("btnAuto")   && ($("btnAuto").onclick   = startRun);
+  $("btnStop")   && ($("btnStop").onclick   = requestStop);
 
   // === Reset button (يتخلق وحدو) ===
   function ensureResetButton(){
@@ -101,13 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }else{
       document.getElementById('btnReset').addEventListener('click', requestReset);
     }
-  }
-
-  function requestReset(){
-    hardReset = true;
-    stopFlag = true;     // يوقّف أي حركات/تايمرز جارِية
-    performHardReset();
-    log('System reset requested', 'log-other');
   }
 
   function performHardReset(){
@@ -130,8 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Panels: رجّع للبداية
     panelLoc = 'stack'; renderPanelVisibility();
     // افتح القبضة
-    $('fingerL').setAttribute('x', -16);
-    $('fingerR').setAttribute('x', 8);
+    $('fingerL') && $('fingerL').setAttribute('x', -16);
+    $('fingerR') && $('fingerR').setAttribute('x', 8);
 
     // أزرار
     const btnA = $('btnAuto');
@@ -162,13 +162,13 @@ document.addEventListener('DOMContentLoaded', () => {
     return { th1, th2 };
   }
   function setJoints(th1, th2) {
-    $("link1").setAttribute("transform", `rotate(${th1*180/Math.PI})`);
-    $("link2").setAttribute("transform", `translate(${L1},0) rotate(${th2*180/Math.PI})`);
+    $("link1") && $("link1").setAttribute("transform", `rotate(${th1*180/Math.PI})`);
+    $("link2") && $("link2").setAttribute("transform", `translate(${L1},0) rotate(${th2*180/Math.PI})`);
   }
   function getCurrentAngles() {
     let a1 = -60*Math.PI/180, a2 = 40*Math.PI/180;
-    const m1 = /rotate\(([-\d.]+)\)/.exec($("link1").getAttribute("transform") || "");
-    const m2 = /rotate\(([-\d.]+)\)/.exec($("link2").getAttribute("transform") || "");
+    const m1 = /rotate\(([-\d.]+)\)/.exec(($("link1") && $("link1").getAttribute("transform")) || "");
+    const m2 = /rotate\(([-\d.]+)\)/.exec(($("link2") && $("link2").getAttribute("transform")) || "");
     if (m1) a1 = parseFloat(m1[1]) * Math.PI/180;
     if (m2) a2 = parseFloat(m2[1]) * Math.PI/180;
     return { th1: a1, th2: a2 };
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* -------- Panel state machine -------- */
   // "stack" | "carry" | "stand" | "p4"
   let panelLoc = "stack";
-  const show = (id, on) => $(id).setAttribute("opacity", on ? 1 : 0);
+  const show = (id, on) => $(id) && $(id).setAttribute("opacity", on ? 1 : 0);
 
   function renderPanelVisibility() {
     show("panelStack", panelLoc === "stack");
@@ -200,8 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
     show("panelP4",    panelLoc === "p4");
   }
   const clamp = (close) => {
-    $("fingerL").setAttribute("x", close ? -14 : -16);
-    $("fingerR").setAttribute("x", close ?   6 :   8);
+    $("fingerL") && $("fingerL").setAttribute("x", close ? -14 : -16);
+    $("fingerR") && $("fingerR").setAttribute("x", close ?   6 :   8);
   };
   function setPanel(loc, note="") {
     panelLoc = loc; renderPanelVisibility();
@@ -316,8 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // prepare next cycle
         setRobotAt(0); setSensor(0); refreshLEDs();
         setLed("led_flash",""); setLed("led_test",""); setLed("led_ack","");
-        fill("bar_flash",0); $("txt_flash").textContent = "";
-        fill("bar_test",0);  $("txt_test").textContent  = "";
+        fill("bar_flash",0); $("txt_flash") && ($("txt_flash").textContent = "");
+        fill("bar_test",0);  $("txt_test")  && ($("txt_test").textContent  = "");
         flashRemain = null; testRemain = null;
         log("Cycle complete — ready for next", "log-ack");
         return 'ok';
@@ -395,20 +395,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setRobotAt(v){
     robotAt = v ? 1 : 0;
-    $("btnRobot").classList.toggle("active", !!robotAt);
-    $("btnRobot").textContent = `RobotAt = ${robotAt}`;
+    $("btnRobot") && $("btnRobot").classList.toggle("active", !!robotAt);
+    $("btnRobot") && ( $("btnRobot").textContent = `RobotAt = ${robotAt}` );
   }
   function setSensor(v){
     sensor = v ? 1 : 0;
-    $("btnSensor").classList.toggle("active", !!sensor);
-    $("btnSensor").textContent = `Sensor = ${sensor}`;
+    $("btnSensor") && $("btnSensor").classList.toggle("active", !!sensor);
+    $("btnSensor") && ( $("btnSensor").textContent = `Sensor = ${sensor}` );
   }
+
+  // ======== WebSocket: إشارات من server.js (START/STOP/RESET) ========
+  const WS_URL = "ws://localhost:8080"; // بدّلها بـ ws://<IP_PC>:8080 وقت تربط من جهاز آخر
+  (function connectWS(){
+    try{
+      const ws = new WebSocket(WS_URL);
+      ws.onopen = ()=> log(`[WS] connected → ${WS_URL}`);
+      ws.onmessage = (ev)=>{
+        const cmd = String(ev.data || "").trim().toUpperCase();
+        log(`[WS] <- ${cmd}`);
+        if (cmd === "START") startRun();
+        else if (cmd === "STOP") requestStop();
+        else if (cmd === "RESET") requestReset();
+      };
+      ws.onclose = ()=> { log("[WS] closed — retrying…"); setTimeout(connectWS, 1000); };
+      ws.onerror = (e)=> { console.warn("[WS] error", e); };
+    }catch(e){
+      console.warn("[WS] init error", e);
+      setTimeout(connectWS, 1000);
+    }
+  })();
 
   // init
   renderPanelVisibility();
   refreshLEDs();
   refreshCountersUI();
-  log("Ready — press Run to start Auto Cycle with Pause/Resume + Reset.");
+  log("Ready — press Run OR send START via TCP to begin. Pause/Resume + Reset supported.");
   console.log("Auto button ready:", !!$("btnAuto"));
 
   /* -------- utility: inject counters UI if missing -------- */
