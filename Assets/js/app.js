@@ -8,9 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let prevReady = false;
 
   // Cycle tracking
-  let stepIdx = 0;             // داخل نفس الدورة: 0..7
-  let cyclesDone = 0;          // عدد الدورات المكتملة
-  let currentCycle = 1;        // رقم الدورة الحالية (human-readable)
+  let stepIdx = 0;             
+  let cyclesDone = 0;          
+  let currentCycle = 1;     
 
   // Progress resumable state
   let flashRemain = null;      // ms remaining for flashing
@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const fill = (id, v) => { $(id).style.width = v + "%"; };
 
-  ensureCountersUI();     // يضيف الشارات (cycles/current/step) كان ماهمش موجودين
-  ensureResetButton();    // يضيف زر Reset تلقائيًا كان مش موجود
+  ensureCountersUI();    
+  ensureResetButton();   
 
   function log(msg, cls = "log-other") {
     const t = new Date().toLocaleTimeString();
@@ -58,12 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setLed("led_sensor", sensor ? "on" : "");
     const ready = robotAt && sensor;
     setLed("led_ready", ready ? "on" : "");
-    // mini-sequence وقت ready يدوي (كيف في كودك القديم)
+
     if (ready && !prevReady && !busy && !auto) processReadyCycle();
     prevReady = ready;
   }
 
-  // ========= واجهة API داخلية: نستعملها من الزرار أو من الشبكة =========
+
   function startRun(){
     if (auto) return;                 // idempotent
     auto = true; stopFlag = false;
@@ -82,18 +82,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function requestReset(){
     hardReset = true;
-    stopFlag = true;     // يوقّف أي حركات/تايمرز جارِية
+    stopFlag = true;    
     performHardReset();
     log('System reset requested', 'log-other');
   }
 
-  // --- Buttons (تبقى تخدم كيف قبل) ---
+  // --- Buttons 
   $("btnRobot") && ($("btnRobot").onclick = () => { setRobotAt(1 - robotAt); refreshLEDs(); });
   $("btnSensor") && ($("btnSensor").onclick = () => { setSensor(1 - sensor); refreshLEDs(); });
   $("btnAuto")   && ($("btnAuto").onclick   = startRun);
   $("btnStop")   && ($("btnStop").onclick   = requestStop);
 
-  // === Reset button (يتخلق وحدو) ===
+
   function ensureResetButton(){
     if (!document.getElementById('btnReset')){
       const controls = document.querySelector('.controls') || document.body;
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function performHardReset(){
-    // صفّر العدّادات والحالة
+
     stepIdx = 0;
     cyclesDone = 0;
     currentCycle = 1;
@@ -119,27 +119,26 @@ document.addEventListener('DOMContentLoaded', () => {
     busy = false;
     auto = false;
 
-    // صفّر الـprogress bars والنصوص
+
     fill('bar_flash', 0); const tf = $('txt_flash'); if(tf) tf.textContent = '';
     fill('bar_test',  0); const tt = $('txt_test');  if(tt) tt.textContent  = '';
 
-    // صفّر LEDs
     setLed('led_flash',''); setLed('led_test',''); setLed('led_ack','');
     setRobotAt(0); setSensor(0); refreshLEDs();
 
-    // Panels: رجّع للبداية
+ 
     panelLoc = 'stack'; renderPanelVisibility();
-    // افتح القبضة
+  
     $('fingerL') && $('fingerL').setAttribute('x', -16);
     $('fingerR') && $('fingerR').setAttribute('x', 8);
 
-    // أزرار
+  
     const btnA = $('btnAuto');
     const btnS = $('btnStop');
     if (btnA){ btnA.textContent = 'Run'; btnA.disabled = false; }
     if (btnS){ btnS.disabled = true; }
 
-    // حدّث شاشات العدّاد
+
     refreshCountersUI();
     $('stepLabel') && ($('stepLabel').textContent = 'Idle');
   }
@@ -404,8 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
     $("btnSensor") && ( $("btnSensor").textContent = `Sensor = ${sensor}` );
   }
 
-  // ======== WebSocket: إشارات من server.js (START/STOP/RESET) ========
-  const WS_URL = "ws://localhost:8080"; // بدّلها بـ ws://<IP_PC>:8080 وقت تربط من جهاز آخر
+  // ======== WebSocket: server.js (START/STOP/RESET) ========
+  const WS_URL = "ws://localhost:8080";
   (function connectWS(){
     try{
       const ws = new WebSocket(WS_URL);
